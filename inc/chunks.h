@@ -22,7 +22,7 @@ typedef struct chunkmap_kv {
 
 u32 block_index(u32 x, u32 y, u32 z);
 Vector3 chunk_world_position(Vector3 chunkpos);
-void init_chunk(Chunk *chunk);
+void init_chunk(Chunk *chunk, Vector3 cpos);
 void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap);
 void draw_chunk(Chunk *chunk);
 
