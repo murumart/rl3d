@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"*.tmj": "json",
+		"*.tsj": "json",
+		"stb_ds.h": "c",
+		"raylib.h": "c",
+		"string_view": "c",
+		"lang.h": "c",
+		"raymath.h": "c",
+		"chunks.h": "c"
+	},
+	"makefile.configureOnOpen": true
+}
