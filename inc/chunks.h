@@ -3,7 +3,7 @@
 
 #include "lang.h"
 
-#include "raylib.h"
+#include "ext/raylib.h"
 
 static const u32 CHUNK_WIDTH = 16;
 static const u32 CHUNK_HEIGHT = 16;

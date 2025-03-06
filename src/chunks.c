@@ -1,8 +1,8 @@
 #include "chunks.h"
 
-#include "raylib.h"
-#include "raymath.h"
-#include "stb_ds.h"
+#include "ext/raylib.h"
+#include "ext/raymath.h"
+#include "ext/stb_ds.h"
 
 #include <stdlib.h>
 #include <stdio.h>

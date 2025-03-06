@@ -5,7 +5,7 @@
 
 #include "chunks.h"
 
-#include "raylib.h"
+#include "ext/raylib.h"
 
 typedef struct world {
 	ChunkmapKV *chunkmap;

@@ -1,9 +1,9 @@
 #include "lang.h"
 #define STB_DS_IMPLEMENTATION
-#include "stb_ds.h"
+#include "ext/stb_ds.h"
 
-#include "raylib.h"
-#include "raymath.h"
+#include "ext/raylib.h"
+#include "ext/raymath.h"
 
 #include "chunks.h"
 #include "world.h"
