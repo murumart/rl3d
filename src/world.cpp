@@ -11,7 +11,7 @@ void init_world(World *world)
 	for (i32 x = -5; x < 5; x++)
 		for (i32 y = -5; y < 5; y++)
 			for (i32 z = -5; z < 5; z++) {
-				Vector3 vec = { x, y, z };
+				Vector3 vec = { (float)x, (float)y, (float)z };
 				arrput(initchunks, vec);
 			}
 
