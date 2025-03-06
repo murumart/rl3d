@@ -35,12 +35,9 @@ void init_chunk(Chunk *chunk, Vector3 cpos)
 	chunk->block_data = calloc(CHUNK_BLOCK_COUNT, sizeof(u16));
 	Vector3 wpos = Vector3Multiply(cpos, CHUNK_DIM);
 
-	for (u32 z = 0; z < CHUNK_WIDTH; z++) {
-		for (u32 y = 0; y < CHUNK_HEIGHT; y++) {
-			for (u32 x = 0; x < CHUNK_WIDTH; x++) {
-				determine_block(chunk, wpos, x, y, z);
-			}
-		}
+	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
+	{
+		determine_block(chunk, wpos, x, y, z);
 	}
 }
 
@@ -57,17 +54,15 @@ void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap)
 void draw_chunk(Chunk *chunk)
 {
 	Vector3 wpos = chunk_world_position(chunk->position);
-	for (u32 z = 0; z < CHUNK_WIDTH; z++) {
-		for (u32 y = 0; y < CHUNK_HEIGHT; y++) {
-			for (u32 x = 0; x < CHUNK_WIDTH; x++) {
-				u16 block = chunk->block_data[block_index(x, y, z)];
-				if (block == 0) continue;
-				Vector3 drawposition = Vector3Add(wpos, (Vector3){ x, y, z });
-				DrawCubeV(drawposition, Vector3One(), GREEN);
-				DrawCubeWiresV(drawposition, Vector3One(), DARKGREEN);
-			}
-		}
+	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
+	{
+		u16 block = chunk->block_data[block_index(x, y, z)];
+		if (block == 0) continue;
+		Vector3 drawposition = Vector3Add(wpos, (Vector3){ x, y, z });
+		DrawCubeV(drawposition, Vector3One(), GREEN);
+		DrawCubeWiresV(drawposition, Vector3One(), DARKGREEN);
 	}
+
 	DrawCubeWiresV(Vector3Add(wpos, Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5))),
 		       Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 }

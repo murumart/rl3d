@@ -5,6 +5,11 @@
 
 #include "ext/raylib.h"
 
+#define BLOCKS_ZYX_LOOP(X, Y, Z)            \
+	for (u32 z = 0; z < Z; z++)         \
+		for (u32 y = 0; y < Y; y++) \
+			for (u32 x = 0; x < X; x++)
+
 static const u32 CHUNK_WIDTH = 16;
 static const u32 CHUNK_HEIGHT = 16;
 static const u32 CHUNK_BLOCK_COUNT = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH;
