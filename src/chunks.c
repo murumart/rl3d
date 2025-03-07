@@ -49,7 +49,7 @@ void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap)
 		init_chunk(&chunk, positions[i]);
 		hmput(*chunkmap, positions[i], chunk);
 	}
-	printf("hmlen is %ld!\n", hmlen(*chunkmap));
+	printf("hmlen is %d!\n", (i32)hmlen(*chunkmap));
 }
 
 void mesh_chunk(Chunk *chunk)

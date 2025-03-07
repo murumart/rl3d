@@ -18,5 +18,5 @@ void init_world(World *world)
 
 	world->chunkmap = NULL;
 	fill_chunk_positions(initchunks, arrlenu(initchunks), &world->chunkmap);
-	printf("hmlen is %ld!\n", hmlen(world->chunkmap));
+	printf("hmlen is %d!\n", (i32)hmlen(world->chunkmap));
 }

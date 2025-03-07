@@ -1,10 +1,12 @@
 # https://spin.atomicobject.com/makefile-c-projects/
 TARGET_EXEC ?= rl3d
 
+UNAME:=$(shell uname)
+
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./src
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+SRCS := $(shell find $(SRC_DIRS) -name *.c)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
@@ -17,9 +19,14 @@ CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 CPPFLAGS += -Wall -Werror -Wno-comment
 CPPFLAGS += -g
 
-LDFLAGS += -Llib -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+ifeq ($(OS),Windows_NT)
+  LDFLAGS += -Llib/win -lraylib -lgdi32 -lwinmm
+else
+  LDFLAGS += -Llib -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+endif
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	@echo we are on system $(UNAME)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # assembly
