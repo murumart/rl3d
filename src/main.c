@@ -45,7 +45,9 @@ int main(void)
 			//printf("drew chunk %u\n", i);
 		}
 
-		DrawCube(Vector3Zero(), 0.2f, 3000.0f, 0.2f, MAGENTA);
+		// axis mundi
+		DrawCube(Vector3Zero(), 0.2f, 9000.0f, 0.2f, MAGENTA);
+		DrawLine3D((Vector3){ 0, -9999, 0 }, (Vector3){ 0, 9999, 0 }, MAGENTA);
 		DrawGrid(10, 1.0f);
 
 		EndMode3D();
