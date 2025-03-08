@@ -52,10 +52,10 @@ int main(void)
 
 		EndMode3D();
 
-		char debugstring[300] = "location: ";
-		snprintf(&debugstring[10], 300 - 10, "(%f %f %f)", camera.position.x, camera.position.y,
+		char debugstrings[2][40] = { 0 };
+		snprintf(&debugstrings[0][0], 40, "cam pos: (%.2f %.2f %.2f)", camera.position.x, camera.position.y,
 			 camera.position.z);
-		DrawText(debugstring, 0, 0, 24, BLACK);
+		DrawText(debugstrings[0], 0, 0, 24, BLACK);
 
 		EndDrawing();
 	}

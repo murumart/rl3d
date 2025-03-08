@@ -7,6 +7,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
+
+typedef struct mesh_gen_info {
+	float *vertices;
+	u32 vertex_offset;
+	u32 vertex_max;
+	float *texcoords;
+	u32 texcoord_offset;
+	u32 texcoord_max;
+	float *normals;
+	u32 normal_offset;
+	u32 normal_max;
+} MeshGenInfo;
 
 u32 block_index(u32 x, u32 y, u32 z)
 {
@@ -52,41 +65,143 @@ void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap)
 	printf("hmlen is %d!\n", (i32)hmlen(*chunkmap));
 }
 
+// does not check memory bounds!!
+static void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
+{
+	info->vertices[info->vertex_offset + 0] = pos.x;
+	info->vertices[info->vertex_offset + 1] = pos.y;
+	info->vertices[info->vertex_offset + 2] = pos.z;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = normal.x;
+	info->normals[info->normal_offset + 1] = normal.y;
+	info->normals[info->normal_offset + 2] = normal.z;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = texcoord.x;
+	info->texcoords[info->texcoord_offset + 1] = texcoord.y;
+	info->texcoord_offset += 2;
+}
+
+static void mesh_north_face(MeshGenInfo *info)
+{
+	assert(info->vertex_offset + 18 <= info->vertex_max);
+	assert(info->normal_offset + 18 <= info->normal_max);
+	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+
+	// 0, 0, 0
+	//mesh_vertex(info, (Vector3){ 0, 0, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	info->vertices[info->vertex_offset + 0] = 0;
+	info->vertices[info->vertex_offset + 1] = 0;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+
+	// 1, 1, 0
+	info->vertices[info->vertex_offset + 0] = 1;
+	info->vertices[info->vertex_offset + 1] = 1;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+
+	// 1, 0, 0
+	info->vertices[info->vertex_offset + 0] = 1;
+	info->vertices[info->vertex_offset + 1] = 0;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+
+	// 0, 0, 0
+	info->vertices[info->vertex_offset + 0] = 0;
+	info->vertices[info->vertex_offset + 1] = 0;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+
+	// 0, 1, 0
+	info->vertices[info->vertex_offset + 0] = 0;
+	info->vertices[info->vertex_offset + 1] = 1;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+
+	// 1, 1, 0
+	info->vertices[info->vertex_offset + 0] = 1;
+	info->vertices[info->vertex_offset + 1] = 1;
+	info->vertices[info->vertex_offset + 2] = 0;
+	info->vertex_offset += 3;
+
+	info->normals[info->normal_offset + 0] = 0;
+	info->normals[info->normal_offset + 1] = 0;
+	info->normals[info->normal_offset + 2] = -1;
+	info->normal_offset += 3;
+
+	info->texcoords[info->texcoord_offset + 0] = 0;
+	info->texcoords[info->texcoord_offset + 1] = 0;
+	info->texcoord_offset += 2;
+}
+
 void mesh_chunk(Chunk *chunk)
 {
 	Mesh mesh = { 0 };
-	mesh.triangleCount = 1;
+	mesh.triangleCount = 2;
 	mesh.vertexCount = mesh.triangleCount * 3;
-	mesh.vertices = malloc(mesh.vertexCount * sizeof(float) * 3);
-	mesh.texcoords = malloc(mesh.vertexCount * sizeof(float) * 2);
-	mesh.normals = malloc(mesh.vertexCount * sizeof(float) * 3);
 
-	mesh.vertices[0] = 0;
-	mesh.vertices[1] = 0;
-	mesh.vertices[2] = 0;
-	mesh.normals[0] = 0;
-	mesh.normals[1] = 1;
-	mesh.normals[2] = 0;
-	mesh.texcoords[0] = 0;
-	mesh.texcoords[1] = 0;
+	MeshGenInfo info = {
+		.vertex_max = mesh.vertexCount * 3,
+		.normal_max = mesh.vertexCount * 3,
+		.texcoord_max = mesh.vertexCount * 2,
+	};
 
-	mesh.vertices[3] = 1;
-	mesh.vertices[4] = 1;
-	mesh.vertices[5] = 0;
-	mesh.normals[3] = 0;
-	mesh.normals[4] = 1;
-	mesh.normals[5] = 0;
-	mesh.texcoords[2] = 0.5f;
-	mesh.texcoords[3] = 1.0f;
+	info.vertices = malloc(info.vertex_max * sizeof(float));
+	info.normals = malloc(info.normal_max * sizeof(float));
+	info.texcoords = malloc(info.texcoord_max * sizeof(float));
 
-	mesh.vertices[6] = 1;
-	mesh.vertices[7] = 0;
-	mesh.vertices[8] = 0;
-	mesh.normals[6] = 0;
-	mesh.normals[7] = 1;
-	mesh.normals[8] = 0;
-	mesh.texcoords[4] = 1;
-	mesh.texcoords[5] = 0;
+	mesh_north_face(&info);
+
+	mesh.vertices = info.vertices;
+	mesh.normals = info.normals;
+	mesh.texcoords = info.texcoords;
 
 	UploadMesh(&mesh, false);
 	chunk->mesh = mesh;
