@@ -66,7 +66,7 @@ void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap)
 }
 
 // does not check memory bounds!!
-static void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
+static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
 {
 	info->vertices[info->vertex_offset + 0] = pos.x;
 	info->vertices[info->vertex_offset + 1] = pos.y;
@@ -89,96 +89,12 @@ static void mesh_north_face(MeshGenInfo *info)
 	assert(info->normal_offset + 18 <= info->normal_max);
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
-	// 0, 0, 0
-	//mesh_vertex(info, (Vector3){ 0, 0, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
-	info->vertices[info->vertex_offset + 0] = 0;
-	info->vertices[info->vertex_offset + 1] = 0;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
-
-	// 1, 1, 0
-	info->vertices[info->vertex_offset + 0] = 1;
-	info->vertices[info->vertex_offset + 1] = 1;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
-
-	// 1, 0, 0
-	info->vertices[info->vertex_offset + 0] = 1;
-	info->vertices[info->vertex_offset + 1] = 0;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
-
-	// 0, 0, 0
-	info->vertices[info->vertex_offset + 0] = 0;
-	info->vertices[info->vertex_offset + 1] = 0;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
-
-	// 0, 1, 0
-	info->vertices[info->vertex_offset + 0] = 0;
-	info->vertices[info->vertex_offset + 1] = 1;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
-
-	// 1, 1, 0
-	info->vertices[info->vertex_offset + 0] = 1;
-	info->vertices[info->vertex_offset + 1] = 1;
-	info->vertices[info->vertex_offset + 2] = 0;
-	info->vertex_offset += 3;
-
-	info->normals[info->normal_offset + 0] = 0;
-	info->normals[info->normal_offset + 1] = 0;
-	info->normals[info->normal_offset + 2] = -1;
-	info->normal_offset += 3;
-
-	info->texcoords[info->texcoord_offset + 0] = 0;
-	info->texcoords[info->texcoord_offset + 1] = 0;
-	info->texcoord_offset += 2;
+	mesh_vertex(info, (Vector3){ 0, 0, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1, 1, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1, 0, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0, 0, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0, 1, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1, 1, 0 }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
 }
 
 void mesh_chunk(Chunk *chunk)
