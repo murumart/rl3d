@@ -7,7 +7,7 @@
 
 void init_world(World *world)
 {
-	const i32 WDIMS = 1;
+	const i32 WDIMS = 2;
 	Vector3 *initchunks = NULL;
 	for (i32 x = -WDIMS; x < WDIMS; x++)
 		for (i32 y = -WDIMS; y < WDIMS; y++)

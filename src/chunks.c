@@ -33,7 +33,7 @@ Vector3 chunk_world_position(Vector3 chunkpos)
 
 static inline void determine_block(Chunk *chunk, Vector3 wpos, u32 x, u32 y, u32 z)
 {
-	i32 density = ((i32)y + wpos.y * wpos.y * wpos.y);
+	i32 density = ((i32)y + wpos.y * wpos.y * wpos.y * wpos.y * wpos.y);
 	density = density < 0 ? 0 : density;
 
 	u32 i = block_index(x, y, z);

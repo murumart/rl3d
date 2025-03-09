@@ -16,6 +16,7 @@ out vec4 finalColor;
 // NOTE: Add your custom variables here
 
 void main() {
-    vec3 normal = normalize(fragNormal);
+    float brightness = 1.0;
+    brightness -= normal.x * 0.1;
     finalColor = vec4(normal.x, normal.g, normal.b, 1.0);
 }
