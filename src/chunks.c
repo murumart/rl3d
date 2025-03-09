@@ -4,6 +4,7 @@
 #include "ext/raylib.h"
 #include "ext/raymath.h"
 #include "ext/stb_ds.h"
+#include "ext/stb_perlin.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,11 +28,24 @@ BlockPosition chunkpos_to_blockpos(ChunkPosition cpos)
 
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
 {
-	i32 height = bpos.y + y;
-	height = 32 + height;
+	const float nscale = 0.02;
+	const i32 maxy = 16;
+	const float ydistr = 0.03;
+
+	Vector3 wpos = { bpos.x + (i32)x, bpos.y + (i32)y, bpos.z + (i32)z };
+	Vector3 pick = Vector3Scale(wpos, nscale);
+	float density = stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0);
+	pick = Vector3Scale(pick, 2);
+	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.75;
+	pick = Vector3Scale(pick, 2);
+	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.5;
+
+	float ydist = wpos.y - maxy;
+	//if (wpos.y > maxy) density -= ydist * ydistr;
+	density -= ydist * ydistr;
 
 	u32 i = block_index(x, y, z);
-	if (GetRandomValue(0, height < 0 ? 0 : height * height) == 0) {
+	if (density > 0) {
 		chunk->block_data[i] = 1;
 	}
 }
@@ -72,8 +86,8 @@ void draw_chunk(Chunk *chunk, Material material)
 		DrawCubeWiresV(drawposition, Vector3One(), DARKGREEN);
 	} */
 
-	DrawCubeWiresV(Vector3Add(wpos, Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5))),
-		       Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
+	//DrawCubeWiresV(Vector3Add(wpos, Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5))),
+	//	       Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 
 	DrawMesh(chunk->mesh, material, MatrixTranslate(wpos.x, wpos.y, wpos.z));
 }

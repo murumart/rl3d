@@ -10,9 +10,9 @@ void init_world(World *world)
 {
 	const i32 WDIMS = 4;
 	ChunkPosition *initchunks = NULL;
-	for (i32 x = -WDIMS; x < WDIMS; x++)
+	for (i32 x = -WDIMS * 2; x < WDIMS * 2; x++)
 		for (i32 y = -WDIMS; y < WDIMS; y++)
-			for (i32 z = -WDIMS; z < WDIMS; z++) {
+			for (i32 z = -WDIMS * 2; z < WDIMS * 2; z++) {
 				ChunkPosition pos = { x, y, z };
 				arrput(initchunks, pos);
 			}
