@@ -1,4 +1,5 @@
 #include "world.h"
+#include "chunks.h"
 
 #include "lang.h"
 #include "ext/stb_ds.h"
@@ -7,13 +8,13 @@
 
 void init_world(World *world)
 {
-	const i32 WDIMS = 2;
-	Vector3 *initchunks = NULL;
+	const i32 WDIMS = 4;
+	ChunkPosition *initchunks = NULL;
 	for (i32 x = -WDIMS; x < WDIMS; x++)
 		for (i32 y = -WDIMS; y < WDIMS; y++)
 			for (i32 z = -WDIMS; z < WDIMS; z++) {
-				Vector3 vec = { (float)x, (float)y, (float)z };
-				arrput(initchunks, vec);
+				ChunkPosition pos = { x, y, z };
+				arrput(initchunks, pos);
 			}
 
 	world->chunkmap = NULL;
