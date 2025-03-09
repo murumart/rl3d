@@ -24,6 +24,13 @@ int main(void)
 	SetTargetFPS(60);
 	DisableCursor();
 
+	Shader shaders[1];
+	shaders[0] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
+
+	Material materials[1];
+	materials[0] = LoadMaterialDefault();
+	materials[0].shader = shaders[0];
+
 	World world;
 	init_world(&world);
 
@@ -47,7 +54,7 @@ int main(void)
 		BeginMode3D(camera);
 
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
-			draw_chunk(&world.chunkmap[i].value);
+			draw_chunk(&world.chunkmap[i].value, materials[0]);
 			//printf("drew chunk %u\n", i);
 		}
 
