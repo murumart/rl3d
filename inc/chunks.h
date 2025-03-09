@@ -5,6 +5,8 @@
 
 #include "ext/raylib.h"
 
+// loop through blocks in z y x order. pass in dimensions of chunk.
+// provides x, y, z (u32) values for following code block.
 #define BLOCKS_ZYX_LOOP(X, Y, Z)            \
 	for (u32 z = 0; z < Z; z++)         \
 		for (u32 y = 0; y < Y; y++) \
@@ -32,5 +34,7 @@ void init_chunk(Chunk *chunk, Vector3 cpos);
 void fill_chunk_positions(Vector3 *positions, u32 size, ChunkmapKV **chunkmap);
 void mesh_chunk(Chunk *chunk);
 void draw_chunk(Chunk *chunk);
+
+void process_chunk(Chunk *chunk, float delta);
 
 #endif // __CHUNKS_H__

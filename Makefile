@@ -16,8 +16,11 @@ INC_DIRS += inc
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
-CPPFLAGS += -Wall -Werror -Wno-comment
+CPPFLAGS += -Wall -Werror 
 CPPFLAGS += -g
+
+CPPFLAGS += -Wno-comment
+#CPPFLAGS += -Wno-unused-function
 
 ifeq ($(OS),Windows_NT)
   LDFLAGS += -Llib/win -lraylib -lgdi32 -lwinmm

@@ -28,9 +28,15 @@ int main(void)
 	init_world(&world);
 
 	while (!WindowShouldClose()) {
+		float delta = GetFrameTime();
+
 		if (IsKeyPressed(KEY_LEFT_ALT)) {
 			if (IsCursorHidden()) EnableCursor();
 			else DisableCursor();
+		}
+
+		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
+			process_chunk(&world.chunkmap[i].value, delta);
 		}
 
 		UpdateCamera(&camera, CAMERA_FREE);
