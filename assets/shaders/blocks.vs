@@ -17,16 +17,23 @@ out vec2 fragTexCoord;
 out vec4 fragColor;
 out vec3 fragNormal;
 
+// used to darken (shade) block sides
+out float vertexBrightness;
+
 // NOTE: Add your custom variables here
 
 void main()
 {
-    // Send vertex attributes to fragment shader
-    fragPosition = vec3(matModel*vec4(vertexPosition, 1.0));
-    fragTexCoord = vertexTexCoord;
-    fragColor = vertexColor;
-    fragNormal = normalize(vec3(matNormal*vec4(vertexNormal, 1.0)));
+	// Send vertex attributes to fragment shader
+	fragPosition = vec3(matModel * vec4(vertexPosition, 1.0));
+	fragTexCoord = vertexTexCoord;
+	fragColor = vertexColor;
+	fragNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0)));
 
-    // Calculate final vertex position
-    gl_Position = mvp*vec4(vertexPosition, 1.0);
+	// darken sides
+	vertexBrightness = 1.0 - abs(vertexNormal.x) * 0.2 - abs(vertexNormal.z) * 0.1 + vertexNormal.y * 0.3;
+	vertexBrightness = min(vertexBrightness, 1.0);
+
+	// Calculate final vertex position
+	gl_Position = mvp * vec4(vertexPosition, 1.0);
 }

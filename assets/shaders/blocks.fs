@@ -5,6 +5,7 @@ in vec3 fragPosition;
 in vec2 fragTexCoord;
 in vec4 fragColor;
 in vec3 fragNormal;
+in float vertexBrightness;
 
 // Input uniform values
 uniform sampler2D texture0;
@@ -15,8 +16,8 @@ out vec4 finalColor;
 
 // NOTE: Add your custom variables here
 
-void main() {
-    float brightness = 1.0;
-    brightness -= normal.x * 0.1;
-    finalColor = vec4(normal.x, normal.g, normal.b, 1.0);
+void main()
+{
+	//brightness -= fragNormal.x * 0.1;
+	finalColor = vec4(vertexBrightness, vertexBrightness, vertexBrightness, 1.0);
 }

@@ -3,7 +3,7 @@ TARGET_EXEC ?= rl3d
 
 UNAME:=$(shell uname)
 
-BUILD_DIR ?= ./build
+BUILD_DIR ?= ./.build
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.c)

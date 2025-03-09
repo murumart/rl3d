@@ -12,7 +12,7 @@
 
 int main(void)
 {
-	InitWindow(900, 700, "3D");
+	InitWindow(1280, 720, "3D");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 
 	Camera3D camera = { 0 };
