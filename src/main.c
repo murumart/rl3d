@@ -14,10 +14,14 @@
 
 #include <stdio.h>
 
+void asserts();
+
 i32 main(i32 argc, char **argv)
 {
 	InitWindow(1280, 720, "3D");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
+
+	asserts();
 
 	Camera3D camera = { 0 };
 	camera.position = (Vector3){ 10.0f, 10.0f, 10.0f };
@@ -26,7 +30,6 @@ i32 main(i32 argc, char **argv)
 	camera.projection = CAMERA_PERSPECTIVE;
 
 	SetTargetFPS(0);
-	DisableCursor();
 
 	Shader shaders[1];
 	shaders[0] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
@@ -99,4 +102,28 @@ i32 main(i32 argc, char **argv)
 
 	CloseWindow();
 	return 0;
+}
+
+void asserts()
+{
+	BlockPosition a = { 1, 2, 3 };
+	BlockPosition b = chunk_world_bpos_to_local((BlockPosition){ 1, 2, 3 });
+	assert(a.x == b.x && a.y == b.y && a.z == b.z);
+	b = chunk_world_bpos_to_local((BlockPosition){ 1 + 16, 2 + 16, 3 + 16 });
+	assert(a.x == b.x && a.y == b.y && a.z == b.z);
+	b = chunk_world_bpos_to_local((BlockPosition){ 1 - 48, 2 - 16, 3 - 32 });
+	assert(a.x == b.x && a.y == b.y && a.z == b.z);
+
+	ChunkPosition c = { 1, 1, 1 };
+	ChunkPosition d = chunkpos_from_blockpos((BlockPosition){ 17, 18, 19 });
+	assert(c.x == d.x && c.y == d.y && c.z == d.z);
+	c = (ChunkPosition){ -1, -1, 0 };
+	d = chunkpos_from_blockpos((BlockPosition){ -1, -15, 15 });
+	assert(c.x == d.x && c.y == d.y && c.z == d.z);
+
+	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
+	{
+		a = (BlockPosition){ x, y, z };
+		assert(block_index(x, y, z) == block_indexp(a));
+	}
 }

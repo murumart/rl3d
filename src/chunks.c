@@ -28,14 +28,15 @@ BlockPosition blockpos_from_chunkpos(ChunkPosition cpos)
 
 ChunkPosition chunkpos_from_blockpos(BlockPosition bpos)
 {
-	return (ChunkPosition){ .x = bpos.x / (i32)CHUNK_WIDTH,
-				.y = bpos.y / (i32)CHUNK_HEIGHT,
-				.z = bpos.z / (i32)CHUNK_WIDTH };
+	return (ChunkPosition){ .x = (i32)floorf(bpos.x / (float)CHUNK_WIDTH),
+				.y = (i32)floorf(bpos.y / (float)CHUNK_HEIGHT),
+				.z = (i32)floorf(bpos.z / (float)CHUNK_WIDTH) };
 }
 
-BlockPosition world_bpos_to_local(BlockPosition global)
+BlockPosition chunk_world_bpos_to_local(BlockPosition global)
 {
-	return (BlockPosition){ global.x % CHUNK_WIDTH, global.y % CHUNK_HEIGHT, global.z % CHUNK_WIDTH };
+	return (BlockPosition){ (u32)global.x % CHUNK_WIDTH, (u32)global.y % CHUNK_HEIGHT,
+				(u32)global.z % CHUNK_WIDTH };
 }
 
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
@@ -89,8 +90,8 @@ void draw_chunk(Chunk *chunk, Material material)
 		DrawCubeWiresV(drawposition, Vector3One(), DARKGREEN);
 	} */
 
-	//DrawCubeWiresV(Vector3Add(wpos, Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5))),
-	//	       Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
+	//Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
+	//DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 
 	DrawMesh(chunk->mesh, material, MatrixTranslate(wpos.x, wpos.y, wpos.z));
 }

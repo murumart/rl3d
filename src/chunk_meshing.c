@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 typedef struct mesh_gen_info {
 	float *vertices;
@@ -124,17 +125,19 @@ static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 
 static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 {
-	/* if (x < 0 || x >= CHUNK_WIDTH) return true;
-	if (y < 0 || y >= CHUNK_HEIGHT) return true;
-	if (z < 0 || z >= CHUNK_WIDTH) return true; */
+	if (x < 0 || x >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_WIDTH) {
+		// xyz are relative to the passed in chunk
+		BlockPosition bpos = { x, y, z };
+		ChunkPosition outside_location = chunkpos_from_blockpos(bpos);
+		// add that chunk's position so the location becomes global
+		outside_location.x += chunk->position.x;
+		outside_location.y += chunk->position.y;
+		outside_location.z += chunk->position.z;
+		Chunk *outside_chunk = world_get_chunk(world, outside_location);
+		if (outside_chunk == NULL) return true;
 
-	if (x < 0 || x >= CHUNK_WIDTH || z < 0 || z >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT) {
-		ChunkPosition wherethen = chunkpos_from_blockpos((BlockPosition){ x, y, z });
-		Chunk *other = world_get_chunk(world, wherethen);
-		if (other == NULL) return false;
-
-		BlockPosition inside = world_bpos_to_local((BlockPosition){ x, y, z });
-		return other->block_data[block_indexp(inside)] == 0;
+		BlockPosition inside = chunk_world_bpos_to_local(bpos);
+		return outside_chunk->block_data[block_indexp(inside)] == 0;
 	}
 	return chunk->block_data[block_index((u32)x, (u32)y, (u32)z)] == 0;
 }
