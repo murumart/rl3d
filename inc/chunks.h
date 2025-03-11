@@ -12,8 +12,9 @@
 		for (u32 y = 0; y < Y; y++) \
 			for (u32 x = 0; x < X; x++)
 
-static const u32 CHUNK_WIDTH = 16;
-static const u32 CHUNK_HEIGHT = 16;
+#define CHUNK_WIDTH 16U
+#define CHUNK_HEIGHT 16U
+
 static const u32 CHUNK_BLOCK_COUNT = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH;
 static const Vector3 CHUNK_DIM = { CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH };
 

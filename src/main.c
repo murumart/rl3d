@@ -1,6 +1,10 @@
 #include "lang.h"
+
 #define STB_DS_IMPLEMENTATION
 #include "ext/stb_ds.h"
+
+#define FRUSTUM_IMPLEMENTATION
+#include "ext/frustum.h"
 
 #include "ext/raylib.h"
 #include "ext/raymath.h"
@@ -21,7 +25,7 @@ int main(void)
 	camera.fovy = 60.0f;
 	camera.projection = CAMERA_PERSPECTIVE;
 
-	SetTargetFPS(120);
+	SetTargetFPS(0);
 	DisableCursor();
 
 	Shader shaders[1];
@@ -60,10 +64,20 @@ int main(void)
 
 		BeginMode3D(camera);
 
+		Frustum frustum;
+		ExtractFrustum(&frustum);
+
+		const float frustrad = CHUNK_WIDTH;
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
 			ChunkmapKV kv = world.chunkmap[i];
-			draw_chunk(&kv.value, materials[0]);
-			//printf("drew chunk %u\n", i);
+			BlockPosition chunkpos = chunkpos_to_blockpos(kv.value.position);
+			Vector3 chunkcentre = (Vector3){ chunkpos.x + (float)CHUNK_WIDTH / 2,
+							 chunkpos.y + (float)CHUNK_HEIGHT / 2,
+							 chunkpos.z + (float)CHUNK_WIDTH / 2 };
+
+			if (SphereInFrustumV(&frustum, chunkcentre, frustrad)) {
+				draw_chunk(&kv.value, materials[0]);
+			}
 		}
 
 		// axis mundi
