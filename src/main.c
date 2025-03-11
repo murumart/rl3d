@@ -21,15 +21,22 @@ int main(void)
 	camera.fovy = 60.0f;
 	camera.projection = CAMERA_PERSPECTIVE;
 
-	SetTargetFPS(60);
+	SetTargetFPS(120);
 	DisableCursor();
 
 	Shader shaders[1];
 	shaders[0] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
 
+	MaterialMap matmaps[1];
+
 	Material materials[1];
 	materials[0] = LoadMaterialDefault();
 	materials[0].shader = shaders[0];
+	materials[0].maps = matmaps;
+
+	Texture textures[1];
+	textures[0] = LoadTexture("assets/textures/blocks/atlas.png");
+	matmaps[0] = (MaterialMap){ .texture = textures[0] };
 
 	World world;
 	init_world(&world);
@@ -37,7 +44,7 @@ int main(void)
 	while (!WindowShouldClose()) {
 		float delta = GetFrameTime();
 
-		if (IsKeyPressed(KEY_LEFT_ALT)) {
+		if (IsKeyPressed(KEY_C)) {
 			if (IsCursorHidden()) EnableCursor();
 			else DisableCursor();
 		}
@@ -54,7 +61,8 @@ int main(void)
 		BeginMode3D(camera);
 
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
-			draw_chunk(&world.chunkmap[i].value, materials[0]);
+			ChunkmapKV kv = world.chunkmap[i];
+			draw_chunk(&kv.value, materials[0]);
 			//printf("drew chunk %u\n", i);
 		}
 
@@ -68,7 +76,9 @@ int main(void)
 		char debugstrings[2][40] = { 0 };
 		snprintf(&debugstrings[0][0], 40, "cam pos: (%.2f %.2f %.2f)", camera.position.x, camera.position.y,
 			 camera.position.z);
+		snprintf(&debugstrings[1][0], 40, "\nfps: %d", GetFPS());
 		DrawText(debugstrings[0], 0, 0, 24, BLACK);
+		DrawText(debugstrings[1], 0, 0, 24, BLACK);
 
 		EndDrawing();
 	}

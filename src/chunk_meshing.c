@@ -33,8 +33,8 @@ static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, V
 	info->normals[info->normal_offset + 2] = normal.z;
 	info->normal_offset += 3;
 
-	info->texcoords[info->texcoord_offset + 0] = texcoord.x;
-	info->texcoords[info->texcoord_offset + 1] = texcoord.y;
+	info->texcoords[info->texcoord_offset + 0] = texcoord.x / 16;
+	info->texcoords[info->texcoord_offset + 1] = texcoord.y / 16;
 	info->texcoord_offset += 2;
 }
 
@@ -44,11 +44,11 @@ static void mesh_north_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->normal_offset + 18 <= info->normal_max);
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
 }
 
@@ -58,11 +58,11 @@ static void mesh_south_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->normal_offset + 18 <= info->normal_max);
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
 }
 
@@ -72,12 +72,12 @@ static void mesh_east_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->normal_offset + 18 <= info->normal_max);
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
 }
 
 static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -86,11 +86,11 @@ static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->normal_offset + 18 <= info->normal_max);
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
 }
 
@@ -101,11 +101,11 @@ static void mesh_top_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
 }
 
 static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -115,11 +115,11 @@ static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert(info->texcoord_offset + 12 <= info->texcoord_max);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
 }
 
 static bool check_block_transp(Chunk *chunk, i32 x, i32 y, i32 z)

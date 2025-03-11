@@ -18,6 +18,7 @@ out vec4 finalColor;
 
 void main()
 {
-	//brightness -= fragNormal.x * 0.1;
-	finalColor = vec4(vertexBrightness, vertexBrightness, vertexBrightness, 1.0);
+	vec4 brightness = vec4(vertexBrightness, vertexBrightness, vertexBrightness, 1.0);
+	vec4 col = texture(texture0, fragTexCoord);
+	finalColor = col * brightness * fragColor;
 }

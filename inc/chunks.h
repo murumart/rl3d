@@ -35,6 +35,8 @@ typedef struct chunk {
 	ChunkPosition position;
 } Chunk;
 
+// stores a chunk as a value and its position (of value ChunkPosition) as a key
+// used in the stb_ds hashmap to store chunks
 typedef struct chunkmap_kv {
 	ChunkPosition key;
 	Chunk value;
