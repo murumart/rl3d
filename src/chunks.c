@@ -21,9 +21,21 @@ u32 block_indexp(BlockPosition bpos)
 	return bpos.x + bpos.y * CHUNK_WIDTH + bpos.z * CHUNK_HEIGHT * CHUNK_WIDTH;
 }
 
-BlockPosition chunkpos_to_blockpos(ChunkPosition cpos)
+BlockPosition blockpos_from_chunkpos(ChunkPosition cpos)
 {
 	return (BlockPosition){ .x = cpos.x * CHUNK_WIDTH, .y = cpos.y * CHUNK_HEIGHT, cpos.z = cpos.z * CHUNK_WIDTH };
+}
+
+ChunkPosition chunkpos_from_blockpos(BlockPosition bpos)
+{
+	return (ChunkPosition){ .x = bpos.x / (i32)CHUNK_WIDTH,
+				.y = bpos.y / (i32)CHUNK_HEIGHT,
+				.z = bpos.z / (i32)CHUNK_WIDTH };
+}
+
+BlockPosition world_bpos_to_local(BlockPosition global)
+{
+	return (BlockPosition){ global.x % CHUNK_WIDTH, global.y % CHUNK_HEIGHT, global.z % CHUNK_WIDTH };
 }
 
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
@@ -50,32 +62,23 @@ static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 
 	}
 }
 
-void init_chunk(Chunk *chunk, ChunkPosition cpos)
+void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 {
 	chunk->position = cpos;
 	chunk->block_data = calloc(CHUNK_BLOCK_COUNT, sizeof(u16));
-	BlockPosition wpos = chunkpos_to_blockpos(cpos);
+	chunk->world = world;
+	BlockPosition wpos = blockpos_from_chunkpos(cpos);
 
 	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
 	{
 		determine_block(chunk, wpos, x, y, z);
 	}
-	mesh_chunk(chunk);
-}
-
-void fill_chunk_positions(ChunkPosition *positions, u32 size, ChunkmapKV **chunkmap)
-{
-	for (u32 i = 0; i < size; i++) {
-		Chunk chunk;
-		init_chunk(&chunk, positions[i]);
-		hmput(*chunkmap, positions[i], chunk);
-	}
-	printf("hmlen is %d!\n", (i32)hmlen(*chunkmap));
+	mesh_chunk(chunk, world);
 }
 
 void draw_chunk(Chunk *chunk, Material material)
 {
-	BlockPosition cbpos = chunkpos_to_blockpos(chunk->position);
+	BlockPosition cbpos = blockpos_from_chunkpos(chunk->position);
 	Vector3 wpos = { cbpos.x, cbpos.y, cbpos.z };
 	/* BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
 	{

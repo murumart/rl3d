@@ -3,6 +3,8 @@
 
 #include "lang.h"
 
+#include "world.h"
+
 #include "ext/raylib.h"
 
 // loop through blocks in z y x order. pass in dimensions of chunk.
@@ -34,6 +36,7 @@ typedef struct chunk {
 	u16 *block_data;
 	Mesh mesh;
 	ChunkPosition position;
+	World *world;
 } Chunk;
 
 // stores a chunk as a value and its position (of value ChunkPosition) as a key
@@ -45,9 +48,10 @@ typedef struct chunkmap_kv {
 
 u32 block_index(u32 x, u32 y, u32 z);
 u32 block_indexp(BlockPosition bpos);
-BlockPosition chunkpos_to_blockpos(ChunkPosition cpos);
-void init_chunk(Chunk *chunk, ChunkPosition cpos);
-void fill_chunk_positions(ChunkPosition *positions, u32 size, ChunkmapKV **chunkmap);
+BlockPosition blockpos_from_chunkpos(ChunkPosition cpos);
+ChunkPosition chunkpos_from_blockpos(BlockPosition bpos);
+BlockPosition world_bpos_to_local(BlockPosition global);
+void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos);
 
 void draw_chunk(Chunk *chunk, Material material);
 void process_chunk(Chunk *chunk, float delta);

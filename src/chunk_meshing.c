@@ -1,6 +1,6 @@
 #include "chunk_meshing.h"
 
-#include "lang.h"
+#include "world.h"
 
 #include "ext/raylib.h"
 #include "ext/raymath.h"
@@ -122,18 +122,27 @@ static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
 }
 
-static bool check_block_transp(Chunk *chunk, i32 x, i32 y, i32 z)
+static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 {
-	if (x < 0 || x >= CHUNK_WIDTH) return true;
+	/* if (x < 0 || x >= CHUNK_WIDTH) return true;
 	if (y < 0 || y >= CHUNK_HEIGHT) return true;
-	if (z < 0 || z >= CHUNK_WIDTH) return true;
+	if (z < 0 || z >= CHUNK_WIDTH) return true; */
+
+	if (x < 0 || x >= CHUNK_WIDTH || z < 0 || z >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT) {
+		ChunkPosition wherethen = chunkpos_from_blockpos((BlockPosition){ x, y, z });
+		Chunk *other = world_get_chunk(world, wherethen);
+		if (other == NULL) return false;
+
+		BlockPosition inside = world_bpos_to_local((BlockPosition){ x, y, z });
+		return other->block_data[block_indexp(inside)] == 0;
+	}
 	return chunk->block_data[block_index((u32)x, (u32)y, (u32)z)] == 0;
 }
 
-void mesh_chunk(Chunk *chunk)
+void mesh_chunk(Chunk *chunk, World *world)
 {
 	Mesh mesh = { 0 };
-	//BlockPosition cwpos = chunkpos_to_blockpos(chunk->position);
+	//BlockPosition cwpos = blockpos_from_chunkpos(chunk->position);
 
 	// 2 triangles per face, how many faces per chunk?
 	u32 faces = 0;
@@ -143,12 +152,12 @@ void mesh_chunk(Chunk *chunk)
 		if (chunk->block_data[block_index(x, y, z)] == 0) continue;
 		else blocks++;
 
-		if (check_block_transp(chunk, x, y, z - 1)) faces++;
-		if (check_block_transp(chunk, x, y, z + 1)) faces++;
-		if (check_block_transp(chunk, x + 1, y, z)) faces++;
-		if (check_block_transp(chunk, x - 1, y, z)) faces++;
-		if (check_block_transp(chunk, x, y + 1, z)) faces++;
-		if (check_block_transp(chunk, x, y - 1, z)) faces++;
+		if (check_block_transp(chunk, world, x, y, z - 1)) faces++;
+		if (check_block_transp(chunk, world, x, y, z + 1)) faces++;
+		if (check_block_transp(chunk, world, x + 1, y, z)) faces++;
+		if (check_block_transp(chunk, world, x - 1, y, z)) faces++;
+		if (check_block_transp(chunk, world, x, y + 1, z)) faces++;
+		if (check_block_transp(chunk, world, x, y - 1, z)) faces++;
 	}
 
 	mesh.triangleCount = 2 * faces;
@@ -170,12 +179,12 @@ void mesh_chunk(Chunk *chunk)
 	{
 		if (chunk->block_data[block_index(x, y, z)] == 0) continue;
 
-		if (check_block_transp(chunk, x, y, z - 1)) mesh_north_face(&info, x, y, z);
-		if (check_block_transp(chunk, x, y, z + 1)) mesh_south_face(&info, x, y, z);
-		if (check_block_transp(chunk, x + 1, y, z)) mesh_east_face(&info, x, y, z);
-		if (check_block_transp(chunk, x - 1, y, z)) mesh_west_face(&info, x, y, z);
-		if (check_block_transp(chunk, x, y + 1, z)) mesh_top_face(&info, x, y, z);
-		if (check_block_transp(chunk, x, y - 1, z)) mesh_bottom_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y, z - 1)) mesh_north_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y, z + 1)) mesh_south_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x + 1, y, z)) mesh_east_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x - 1, y, z)) mesh_west_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y + 1, z)) mesh_top_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y - 1, z)) mesh_bottom_face(&info, x, y, z);
 	}
 
 	mesh.vertices = info.vertices;

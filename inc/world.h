@@ -3,14 +3,20 @@
 
 #include "lang.h"
 
-#include "chunks.h"
-
 #include "ext/raylib.h"
+
+// do not include chunks.h, declare opaque types here
+typedef struct chunk_position ChunkPosition;
+typedef struct chunkmap_kv ChunkmapKV;
+typedef struct chunk Chunk;
 
 typedef struct world {
 	ChunkmapKV *chunkmap;
 } World;
 
-void init_world(World *world);
+void world_init(World *world);
+void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size);
+
+Chunk *world_get_chunk(World *world, ChunkPosition cpos);
 
 #endif // __WORLD_H__

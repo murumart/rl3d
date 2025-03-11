@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-int main(void)
+i32 main(i32 argc, char **argv)
 {
 	InitWindow(1280, 720, "3D");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
@@ -43,7 +43,7 @@ int main(void)
 	matmaps[0] = (MaterialMap){ .texture = textures[0] };
 
 	World world;
-	init_world(&world);
+	world_init(&world);
 
 	while (!WindowShouldClose()) {
 		float delta = GetFrameTime();
@@ -70,7 +70,7 @@ int main(void)
 		const float frustrad = CHUNK_WIDTH;
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
 			ChunkmapKV kv = world.chunkmap[i];
-			BlockPosition chunkpos = chunkpos_to_blockpos(kv.value.position);
+			BlockPosition chunkpos = blockpos_from_chunkpos(kv.value.position);
 			Vector3 chunkcentre = (Vector3){ chunkpos.x + (float)CHUNK_WIDTH / 2,
 							 chunkpos.y + (float)CHUNK_HEIGHT / 2,
 							 chunkpos.z + (float)CHUNK_WIDTH / 2 };
