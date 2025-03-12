@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #define VERTICES_PER_FACE 4
 #define INDICES_PER_FACE 6
@@ -49,15 +50,17 @@ static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, V
 	info->uv_offset += 2;
 }
 
-static inline void index_vertices(MeshGenInfo *info, SixIndices indices)
+static inline void index_vertices(MeshGenInfo *info, u16 a, u16 b, u16 c, u16 d, u16 e, u16 f)
 {
-	u32 vertex_offset = info->vertex_coord_offset / 3;
-	info->indices[info->index_offset + 0] = indices.a + vertex_offset;
-	info->indices[info->index_offset + 1] = indices.b + vertex_offset;
-	info->indices[info->index_offset + 2] = indices.c + vertex_offset;
-	info->indices[info->index_offset + 3] = indices.d + vertex_offset;
-	info->indices[info->index_offset + 4] = indices.e + vertex_offset;
-	info->indices[info->index_offset + 5] = indices.f + vertex_offset;
+	// subtract 4 from the offset because you add 4 vertices each time and to index them
+	// you gotta go backward
+	u32 vertex_offset = info->vertex_coord_offset / 3 - VERTICES_PER_FACE;
+	info->indices[info->index_offset + 0] = a + vertex_offset;
+	info->indices[info->index_offset + 1] = b + vertex_offset;
+	info->indices[info->index_offset + 2] = c + vertex_offset;
+	info->indices[info->index_offset + 3] = d + vertex_offset;
+	info->indices[info->index_offset + 4] = e + vertex_offset;
+	info->indices[info->index_offset + 5] = f + vertex_offset;
 	info->index_offset += 6;
 }
 
@@ -77,7 +80,7 @@ static void mesh_north_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 0 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static void mesh_south_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -88,7 +91,7 @@ static void mesh_south_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 0 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static void mesh_east_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -99,7 +102,7 @@ static void mesh_east_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -110,7 +113,7 @@ static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 0 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static void mesh_top_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
@@ -121,18 +124,18 @@ static void mesh_top_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 1 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
-	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
+	index_vertices(info, 0, 1, 2, 1, 3, 0);
 }
 
 static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
@@ -189,9 +192,11 @@ void mesh_chunk(Chunk *chunk, World *world)
 	assert(info.vertex_coord_max / 3 < UINT16_MAX);
 
 	info.vertex_coords = malloc(info.vertex_coord_max * sizeof(float));
+	memset(info.vertex_coords, 0, sizeof(float) * info.vertex_coord_max);
 	info.normal_sides = malloc(info.normal_side_max * sizeof(float));
 	info.uv_coords = malloc(info.uv_max * sizeof(float));
 	info.indices = malloc(info.index_max * sizeof(u16));
+	memset(info.indices, 0, sizeof(u16) * info.index_max);
 
 	// TODO: binary meshing or whatever
 	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)

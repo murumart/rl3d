@@ -86,8 +86,7 @@ void draw_chunk(Chunk *chunk, Material material)
 		u16 block = chunk->block_data[block_index(x, y, z)];
 		if (block == 0) continue;
 		Vector3 drawposition = Vector3Add(wpos, (Vector3){ x, y, z });
-		DrawCubeV(drawposition, Vector3One(), GREEN);
-		DrawCubeWiresV(drawposition, Vector3One(), DARKGREEN);
+		DrawPoint3D(drawposition, GREEN);
 	} */
 
 	Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));

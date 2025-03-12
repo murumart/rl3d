@@ -20,7 +20,7 @@ CPPFLAGS += -Wall -Werror
 CPPFLAGS += -g
 
 CPPFLAGS += -Wno-comment
-#CPPFLAGS += -Wno-unused-function
+CPPFLAGS += -Wno-unused-function
 
 ifeq ($(OS),Windows_NT)
   LDFLAGS += -Llib/win -lraylib -lgdi32 -lwinmm
