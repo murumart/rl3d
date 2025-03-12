@@ -8,6 +8,7 @@
 
 #include "ext/raylib.h"
 #include "ext/raymath.h"
+#include "ext/rlgl.h"
 
 #include "chunks.h"
 #include "world.h"
@@ -48,12 +49,20 @@ i32 main(i32 argc, char **argv)
 	World world;
 	world_init(&world);
 
+	bool wiremode = false;
+
 	while (!WindowShouldClose()) {
 		float delta = GetFrameTime();
 
 		if (IsKeyPressed(KEY_C)) {
 			if (IsCursorHidden()) EnableCursor();
 			else DisableCursor();
+		} else if (IsKeyPressed(KEY_X)) {
+			if (wiremode) {
+				wiremode = false;
+			} else {
+				wiremode = true;
+			}
 		}
 
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
@@ -70,6 +79,8 @@ i32 main(i32 argc, char **argv)
 		Frustum frustum;
 		ExtractFrustum(&frustum);
 
+		if (wiremode) rlEnableWireMode();
+
 		const float frustrad = CHUNK_WIDTH;
 		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
 			ChunkmapKV kv = world.chunkmap[i];
@@ -82,6 +93,8 @@ i32 main(i32 argc, char **argv)
 				draw_chunk(&kv.value, materials[0]);
 			}
 		}
+
+		rlDisableWireMode();
 
 		// axis mundi
 		DrawCube(Vector3Zero(), 0.2f, 9000.0f, 0.2f, MAGENTA);
