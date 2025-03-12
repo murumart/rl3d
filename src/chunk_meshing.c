@@ -9,118 +9,130 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define VERTICES_PER_FACE 4
+#define INDICES_PER_FACE 6
+
 typedef struct mesh_gen_info {
-	float *vertices;
-	u32 vertex_offset;
-	u32 vertex_max;
-	float *texcoords;
-	u32 texcoord_offset;
-	u32 texcoord_max;
-	float *normals;
-	u32 normal_offset;
-	u32 normal_max;
+	u16 *indices;
+	u32 index_offset;
+	u32 index_max;
+	float *vertex_coords;
+	u32 vertex_coord_offset;
+	u32 vertex_coord_max;
+	float *uv_coords;
+	u32 uv_offset;
+	u32 uv_max;
+	float *normal_sides;
+	u32 normal_side_offset;
+	u32 normal_side_max;
 } MeshGenInfo;
+
+typedef struct six_indices {
+	u16 a, b, c, d, e, f;
+} SixIndices;
 
 // does not check memory bounds!!
 static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
 {
-	info->vertices[info->vertex_offset + 0] = pos.x;
-	info->vertices[info->vertex_offset + 1] = pos.y;
-	info->vertices[info->vertex_offset + 2] = pos.z;
-	info->vertex_offset += 3;
+	info->vertex_coords[info->vertex_coord_offset + 0] = pos.x;
+	info->vertex_coords[info->vertex_coord_offset + 1] = pos.y;
+	info->vertex_coords[info->vertex_coord_offset + 2] = pos.z;
+	info->vertex_coord_offset += 3;
 
-	info->normals[info->normal_offset + 0] = normal.x;
-	info->normals[info->normal_offset + 1] = normal.y;
-	info->normals[info->normal_offset + 2] = normal.z;
-	info->normal_offset += 3;
+	info->normal_sides[info->normal_side_offset + 0] = normal.x;
+	info->normal_sides[info->normal_side_offset + 1] = normal.y;
+	info->normal_sides[info->normal_side_offset + 2] = normal.z;
+	info->normal_side_offset += 3;
 
-	info->texcoords[info->texcoord_offset + 0] = texcoord.x / 16;
-	info->texcoords[info->texcoord_offset + 1] = texcoord.y / 16;
-	info->texcoord_offset += 2;
+	info->uv_coords[info->uv_offset + 0] = texcoord.x / 16;
+	info->uv_coords[info->uv_offset + 1] = texcoord.y / 16;
+	info->uv_offset += 2;
+}
+
+static inline void index_vertices(MeshGenInfo *info, SixIndices indices)
+{
+	u32 vertex_offset = info->vertex_coord_offset / 3;
+	info->indices[info->index_offset + 0] = indices.a + vertex_offset;
+	info->indices[info->index_offset + 1] = indices.b + vertex_offset;
+	info->indices[info->index_offset + 2] = indices.c + vertex_offset;
+	info->indices[info->index_offset + 3] = indices.d + vertex_offset;
+	info->indices[info->index_offset + 4] = indices.e + vertex_offset;
+	info->indices[info->index_offset + 5] = indices.f + vertex_offset;
+	info->index_offset += 6;
+}
+
+static inline void assert_mesh_gen_space_has_room(MeshGenInfo *info)
+{
+	assert(info->vertex_coord_offset + 3 * VERTICES_PER_FACE <= info->vertex_coord_max);
+	assert(info->normal_side_offset + 3 * VERTICES_PER_FACE <= info->normal_side_max);
+	assert(info->uv_offset + 2 * VERTICES_PER_FACE <= info->uv_max);
+	assert(info->index_offset + INDICES_PER_FACE <= info->index_max);
 }
 
 static void mesh_north_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static void mesh_south_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static void mesh_east_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static void mesh_top_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
 	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
-	assert(info->vertex_offset + 18 <= info->vertex_max);
-	assert(info->normal_offset + 18 <= info->normal_max);
-	assert(info->texcoord_offset + 12 <= info->texcoord_max);
+	assert_mesh_gen_space_has_room(info);
 
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
+	index_vertices(info, (SixIndices){ 0, 1, 2, 3, 1, 0 });
 }
 
 static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
@@ -153,7 +165,7 @@ void mesh_chunk(Chunk *chunk, World *world)
 	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
 	{
 		if (chunk->block_data[block_index(x, y, z)] == 0) continue;
-		else blocks++;
+		blocks++;
 
 		if (check_block_transp(chunk, world, x, y, z - 1)) faces++;
 		if (check_block_transp(chunk, world, x, y, z + 1)) faces++;
@@ -165,17 +177,21 @@ void mesh_chunk(Chunk *chunk, World *world)
 
 	mesh.triangleCount = 2 * faces;
 	//mesh.triangleCount = 2 * 6 * blocks;
-	mesh.vertexCount = mesh.triangleCount * 3;
+	mesh.vertexCount = VERTICES_PER_FACE * faces;
 
 	MeshGenInfo info = {
-		.vertex_max = mesh.vertexCount * 3,
-		.normal_max = mesh.vertexCount * 3,
-		.texcoord_max = mesh.vertexCount * 2,
+		.vertex_coord_max = mesh.vertexCount * 3, // each vertex is has a 3 float vector position
+		.normal_side_max = mesh.vertexCount * 3, // normal vector (3 floats) for each vertex
+		.uv_max = mesh.vertexCount * 2, // 2 floats for texture coordinates for each vertex
+		.index_max = INDICES_PER_FACE * faces,
 	};
 
-	info.vertices = malloc(info.vertex_max * sizeof(float));
-	info.normals = malloc(info.normal_max * sizeof(float));
-	info.texcoords = malloc(info.texcoord_max * sizeof(float));
+	assert(info.vertex_coord_max / 3 < UINT16_MAX);
+
+	info.vertex_coords = malloc(info.vertex_coord_max * sizeof(float));
+	info.normal_sides = malloc(info.normal_side_max * sizeof(float));
+	info.uv_coords = malloc(info.uv_max * sizeof(float));
+	info.indices = malloc(info.index_max * sizeof(u16));
 
 	// TODO: binary meshing or whatever
 	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
@@ -190,9 +206,10 @@ void mesh_chunk(Chunk *chunk, World *world)
 		if (check_block_transp(chunk, world, x, y - 1, z)) mesh_bottom_face(&info, x, y, z);
 	}
 
-	mesh.vertices = info.vertices;
-	mesh.normals = info.normals;
-	mesh.texcoords = info.texcoords;
+	mesh.vertices = info.vertex_coords;
+	mesh.normals = info.normal_sides;
+	mesh.texcoords = info.uv_coords;
+	mesh.indices = info.indices;
 
 	UploadMesh(&mesh, false);
 	chunk->mesh = mesh;
