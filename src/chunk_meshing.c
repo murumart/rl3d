@@ -132,10 +132,10 @@ static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 	assert_mesh_gen_space_has_room(info);
 
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
 	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
-	index_vertices(info, 0, 1, 2, 1, 3, 0);
+	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
+	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)

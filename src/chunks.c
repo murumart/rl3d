@@ -89,8 +89,8 @@ void draw_chunk(Chunk *chunk, Material material)
 		DrawPoint3D(drawposition, GREEN);
 	} */
 
-	Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
-	DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
+	//Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
+	//DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 
 	DrawMesh(chunk->mesh, material, MatrixTranslate(wpos.x, wpos.y, wpos.z));
 }
