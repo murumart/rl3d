@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
+#include <time.h>
 
 u32 block_index(u32 x, u32 y, u32 z)
 {
@@ -74,7 +75,11 @@ void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 	{
 		determine_block(chunk, wpos, x, y, z);
 	}
+	clock_t start = clock();
 	mesh_chunk(chunk, world);
+	clock_t end = clock();
+	double timems = ((double)(end - start) / CLOCKS_PER_SEC) * 1000000;
+	printf("meshing %.2lfmics\n", timems);
 }
 
 void draw_chunk(Chunk *chunk, Material material)

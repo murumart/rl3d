@@ -35,12 +35,14 @@ void world_init(World *world)
 
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size)
 {
+	SetTraceLogLevel(LOG_WARNING);
 	for (u32 i = 0; i < size; i++) {
 		Chunk chunk;
 		init_chunk(&chunk, world, positions[i]);
 		hmput(world->chunkmap, positions[i], chunk);
 	}
 	printf("hmlen is %d!\n", (i32)hmlen(world->chunkmap));
+	SetTraceLogLevel(LOG_INFO);
 }
 
 Chunk *world_get_chunk(World *world, ChunkPosition cpos)
