@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define VERTICAL_CHUNKS_LOAD 6 // load vertically this many chunks
+
 static i32 compare_cpos_distances_to_world_centre(const void *a, const void *b)
 {
 	const ChunkPosition *ca = a;
@@ -24,6 +26,7 @@ void world_init(World *world, GameState *state)
 	world->chunkmap = NULL;
 	world->loader_centre = NULL;
 	world->load_chunk_positions = NULL;
+
 	world->loader_centre = &state->camera.position;
 	world_update_view_distance(world, 4);
 
@@ -60,6 +63,7 @@ static inline u32 diamond_arrsize(u16 view_distance)
 	return (u32)(ar1 + ar2);
 }
 
+// need the array size to be set properly, otherwise we're in big trouble
 static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, ChunkPosition *loadus, u32 index)
 {
 	u32 ix = index;
@@ -67,7 +71,9 @@ static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, C
 		i32 x = viewdist - zi - 1;
 		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
 			x += 1;
-			loadus[ix] = (ChunkPosition){ .x = centre.x + x, .y = centre.y, .z = centre.z + zi };
+			loadus[ix] = (ChunkPosition){ .x = centre.x + x - viewdist,
+						      .y = centre.y,
+						      .z = centre.z + zi - viewdist };
 			ix++;
 		}
 	}
@@ -75,41 +81,62 @@ static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, C
 		i32 x = viewdist - zi - 1;
 		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
 			x += 1;
-			loadus[ix] = (ChunkPosition){ .x = centre.x + x,
+			loadus[ix] = (ChunkPosition){ .x = centre.x + x - viewdist,
 						      .y = centre.y,
-						      .z = centre.z + viewdist * 2 - zi };
+						      .z = centre.z + viewdist * 2 - zi - viewdist };
 			ix++;
 		}
 	}
 	return ix;
 }
 
+// make sure the memory is allocated through world_update_view_distance
 static void recalc_visible_chunks(World *world)
 {
 	u32 vd = world->view_distance;
 	u32 index = 0;
 	if (world->loader_centre == NULL) return;
 	ChunkPosition centre = chunkpos_from_worldpos(*world->loader_centre);
-	for (i32 y = centre.y - 3; y < centre.y + 3; y++) {
-		index = calc_visible_chunk_layer(vd, centre, world->load_chunk_positions, index);
+	for (i32 y = centre.y - VERTICAL_CHUNKS_LOAD / 2; y < centre.y + VERTICAL_CHUNKS_LOAD / 2; y++) {
+		ChunkPosition tc = centre;
+		tc.y = y;
+		index = calc_visible_chunk_layer(vd, tc, world->load_chunk_positions, index);
 	}
 }
 
 void world_update_view_distance(World *world, u16 view_distance)
 {
-	world->view_distance = view_distance;
+	bool differ = world->view_distance != view_distance;
+	if (differ) {
+		world->view_distance = view_distance;
 
-	void *recresult = realloc(world->load_chunk_positions,
-				  sizeof(*world->load_chunk_positions) * diamond_arrsize(view_distance) * 6);
-	assert(recresult != NULL);
-	world->load_chunk_positions = recresult;
+		void *recresult = realloc(world->load_chunk_positions, sizeof(*world->load_chunk_positions)
+									       * diamond_arrsize(view_distance)
+									       * VERTICAL_CHUNKS_LOAD);
+		assert(recresult != NULL);
+		world->load_chunk_positions = recresult;
+	}
 	recalc_visible_chunks(world);
 }
 
 void world_process_loading(GameState *state)
 {
 	World *world = &state->world;
+
+	// go over chunks that in vis range and load them
+	u32 sze = diamond_arrsize(world->view_distance) * VERTICAL_CHUNKS_LOAD;
+	for (u32 i = 0; i < sze; i++) {
+		ChunkPosition pos2load = world->load_chunk_positions[i];
+		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
+		if (atpos != NULL) continue;
+		Chunk c = (Chunk){ 0 };
+		init_chunk(&c, world, pos2load);
+		hmput(world->chunkmap, pos2load, c);
+	}
+
 	ChunkPosition old = chunkpos_from_worldpos(state->last_loader_position);
 	ChunkPosition current = chunkpos_from_worldpos(*world->loader_centre);
 	if (are_chunkposes_equal(old, current)) return;
+
+	recalc_visible_chunks(world);
 }
