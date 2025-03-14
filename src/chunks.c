@@ -34,13 +34,20 @@ ChunkPosition chunkpos_from_blockpos(BlockPosition bpos)
 				.z = (i32)floorf(bpos.z / (float)CHUNK_WIDTH) };
 }
 
+ChunkPosition chunkpos_from_worldpos(Vector3 wpos)
+{
+	return (ChunkPosition){ .x = (i32)floorf(wpos.x / CHUNK_WIDTH),
+				.y = (i32)floorf(wpos.y / CHUNK_HEIGHT),
+				.z = (i32)floorf(wpos.z / CHUNK_WIDTH) };
+}
+
 BlockPosition chunk_world_bpos_to_local(BlockPosition global)
 {
 	return (BlockPosition){ (u32)global.x % CHUNK_WIDTH, (u32)global.y % CHUNK_HEIGHT,
 				(u32)global.z % CHUNK_WIDTH };
 }
 
-bool are_chunkposes_equal(ChunkPosition a, ChunkPosition b)
+bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b)
 {
 	return a.x == b.x && a.y == b.y && a.z == b.z;
 }

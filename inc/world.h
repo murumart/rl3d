@@ -10,14 +10,22 @@ typedef struct chunk_position ChunkPosition;
 typedef struct chunkmap_kv ChunkmapKV;
 typedef struct chunk Chunk;
 
+typedef struct state GameState;
+
 typedef struct world {
 	ChunkmapKV *chunkmap;
+
+	ChunkPosition *load_chunk_positions;
 	Vector3 *loader_centre;
+	u16 view_distance;
 } World;
 
-void world_init(World *world);
+void world_init(World *world, GameState *state);
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size);
 
 Chunk *world_get_chunk(World *world, ChunkPosition cpos);
+
+void world_update_view_distance(World *world, u16 view_distance);
+void world_process_loading(GameState *state);
 
 #endif // __WORLD_H__

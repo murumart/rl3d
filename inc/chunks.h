@@ -50,8 +50,9 @@ u32 block_index(u32 x, u32 y, u32 z);
 u32 block_indexp(BlockPosition bpos);
 BlockPosition blockpos_from_chunkpos(ChunkPosition cpos);
 ChunkPosition chunkpos_from_blockpos(BlockPosition bpos);
+ChunkPosition chunkpos_from_worldpos(Vector3 wpos);
 BlockPosition chunk_world_bpos_to_local(BlockPosition global);
-bool are_chunkposes_equal(ChunkPosition a, ChunkPosition b);
+bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b);
 
 void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos);
 

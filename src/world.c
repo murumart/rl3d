@@ -1,10 +1,13 @@
 #include "world.h"
 #include "chunks.h"
 
+#include "state.h"
+
 #include "lang.h"
 #include "ext/stb_ds.h"
 
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 
 static i32 compare_cpos_distances_to_world_centre(const void *a, const void *b)
@@ -16,10 +19,16 @@ static i32 compare_cpos_distances_to_world_centre(const void *a, const void *b)
 	return distsa - distsb;
 }
 
-void world_init(World *world)
+void world_init(World *world, GameState *state)
 {
 	world->chunkmap = NULL;
 	world->loader_centre = NULL;
+	world->load_chunk_positions = NULL;
+	world->loader_centre = &state->camera.position;
+	world_update_view_distance(world, 4);
+
+	ChunkPosition zero = { 0 };
+	world_fill_chunk_positions(world, &zero, 1);
 }
 
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size)
@@ -37,4 +46,70 @@ Chunk *world_get_chunk(World *world, ChunkPosition cpos)
 	ChunkmapKV *kv = hmgetp_null(world->chunkmap, cpos);
 	if (kv == NULL) return NULL;
 	return &kv->value;
+}
+
+static inline u32 diamond_arrsize(u16 view_distance)
+{
+	assert(view_distance > 0 && view_distance < 128);
+	const u32 n = view_distance * 2 + 1;
+	// arithmetic series sum
+	const u32 a = 1;
+	const u32 d = 2;
+	float ar1 = ((n / 2 + 1) / 2.0) * (2 * a + ((n / 2 + 1) - 1) * d);
+	float ar2 = ((n / 2) / 2.0) * (2 * a + ((n / 2) - 1) * d);
+	return (u32)(ar1 + ar2);
+}
+
+static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, ChunkPosition *loadus, u32 index)
+{
+	u32 ix = index;
+	for (i32 zi = 0; zi < viewdist + 1; zi++) {
+		i32 x = viewdist - zi - 1;
+		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
+			x += 1;
+			loadus[ix] = (ChunkPosition){ .x = centre.x + x, .y = centre.y, .z = centre.z + zi };
+			ix++;
+		}
+	}
+	for (i32 zi = viewdist - 1; zi >= 0; zi--) {
+		i32 x = viewdist - zi - 1;
+		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
+			x += 1;
+			loadus[ix] = (ChunkPosition){ .x = centre.x + x,
+						      .y = centre.y,
+						      .z = centre.z + viewdist * 2 - zi };
+			ix++;
+		}
+	}
+	return ix;
+}
+
+static void recalc_visible_chunks(World *world)
+{
+	u32 vd = world->view_distance;
+	u32 index = 0;
+	if (world->loader_centre == NULL) return;
+	ChunkPosition centre = chunkpos_from_worldpos(*world->loader_centre);
+	for (i32 y = centre.y - 3; y < centre.y + 3; y++) {
+		index = calc_visible_chunk_layer(vd, centre, world->load_chunk_positions, index);
+	}
+}
+
+void world_update_view_distance(World *world, u16 view_distance)
+{
+	world->view_distance = view_distance;
+
+	void *recresult = realloc(world->load_chunk_positions,
+				  sizeof(*world->load_chunk_positions) * diamond_arrsize(view_distance) * 6);
+	assert(recresult != NULL);
+	world->load_chunk_positions = recresult;
+	recalc_visible_chunks(world);
+}
+
+void world_process_loading(GameState *state)
+{
+	World *world = &state->world;
+	ChunkPosition old = chunkpos_from_worldpos(state->last_loader_position);
+	ChunkPosition current = chunkpos_from_worldpos(*world->loader_centre);
+	if (are_chunkposes_equal(old, current)) return;
 }

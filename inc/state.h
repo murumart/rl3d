@@ -30,6 +30,7 @@ typedef struct visual_data {
 
 typedef struct state {
 	Camera3D camera;
+	Vector3 last_loader_position;
 
 	World world;
 } GameState;

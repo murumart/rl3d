@@ -53,11 +53,14 @@ i32 main(i32 argc, char **argv)
 			}
 		}
 
+		state.last_loader_position = *state.world.loader_centre;
+		UpdateCamera(&state.camera, CAMERA_FREE);
+
+		world_process_loading(&state);
+
 		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
 			process_chunk(&state.world.chunkmap[i].value, delta);
 		}
-
-		UpdateCamera(&state.camera, CAMERA_FREE);
 
 		/* DRAWING */
 
@@ -115,7 +118,7 @@ void init_state(GameState *state)
 	state->camera.fovy = 60.0f;
 	state->camera.projection = CAMERA_PERSPECTIVE;
 
-	world_init(&state->world);
+	world_init(&state->world, state);
 }
 
 void init_visual(VisualData *visdat)
