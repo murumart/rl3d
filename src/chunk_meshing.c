@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #define VERTICES_PER_FACE 4
 #define INDICES_PER_FACE 6
@@ -159,6 +160,7 @@ static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 
 void mesh_chunk(Chunk *chunk, World *world)
 {
+	clock_t start = clock();
 	Mesh mesh = { 0 };
 	//BlockPosition cwpos = blockpos_from_chunkpos(chunk->position);
 
@@ -184,19 +186,19 @@ void mesh_chunk(Chunk *chunk, World *world)
 
 	MeshGenInfo info = {
 		.vertex_coord_max = mesh.vertexCount * 3, // each vertex is has a 3 float vector position
-		.normal_side_max = mesh.vertexCount * 3, // normal vector (3 floats) for each vertex
-		.uv_max = mesh.vertexCount * 2, // 2 floats for texture coordinates for each vertex
+		.normal_side_max = mesh.vertexCount * 3,  // normal vector (3 floats) for each vertex
+		.uv_max = mesh.vertexCount * 2,		  // 2 floats for texture coordinates for each vertex
 		.index_max = INDICES_PER_FACE * faces,
 	};
 
 	assert(info.vertex_coord_max / 3 < UINT16_MAX);
 
 	info.vertex_coords = malloc(info.vertex_coord_max * sizeof(float));
-	memset(info.vertex_coords, 0, sizeof(float) * info.vertex_coord_max);
+	//memset(info.vertex_coords, 0, sizeof(float) * info.vertex_coord_max);
 	info.normal_sides = malloc(info.normal_side_max * sizeof(float));
 	info.uv_coords = malloc(info.uv_max * sizeof(float));
 	info.indices = malloc(info.index_max * sizeof(u16));
-	memset(info.indices, 0, sizeof(u16) * info.index_max);
+	//memset(info.indices, 0, sizeof(u16) * info.index_max);
 
 	// TODO: binary meshing or whatever
 	BLOCKS_ZYX_LOOP(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)
@@ -218,4 +220,7 @@ void mesh_chunk(Chunk *chunk, World *world)
 
 	UploadMesh(&mesh, false);
 	chunk->mesh = mesh;
+	clock_t end = clock();
+	double timems = ((double)(end - start) / CLOCKS_PER_SEC) * 1000000;
+	printf("meshing %.2lfmics\n", timems);
 }

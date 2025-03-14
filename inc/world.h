@@ -12,6 +12,7 @@ typedef struct chunk Chunk;
 
 typedef struct world {
 	ChunkmapKV *chunkmap;
+	Vector3 *loader_centre;
 } World;
 
 void world_init(World *world);

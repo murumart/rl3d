@@ -51,6 +51,8 @@ u32 block_indexp(BlockPosition bpos);
 BlockPosition blockpos_from_chunkpos(ChunkPosition cpos);
 ChunkPosition chunkpos_from_blockpos(BlockPosition bpos);
 BlockPosition chunk_world_bpos_to_local(BlockPosition global);
+bool are_chunkposes_equal(ChunkPosition a, ChunkPosition b);
+
 void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos);
 
 void draw_chunk(Chunk *chunk, Material material);

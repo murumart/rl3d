@@ -40,6 +40,11 @@ BlockPosition chunk_world_bpos_to_local(BlockPosition global)
 				(u32)global.z % CHUNK_WIDTH };
 }
 
+bool are_chunkposes_equal(ChunkPosition a, ChunkPosition b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
 {
 	const float nscale = 0.02;
@@ -75,11 +80,6 @@ void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 	{
 		determine_block(chunk, wpos, x, y, z);
 	}
-	clock_t start = clock();
-	mesh_chunk(chunk, world);
-	clock_t end = clock();
-	double timems = ((double)(end - start) / CLOCKS_PER_SEC) * 1000000;
-	printf("meshing %.2lfmics\n", timems);
 }
 
 void draw_chunk(Chunk *chunk, Material material)
@@ -94,8 +94,8 @@ void draw_chunk(Chunk *chunk, Material material)
 		DrawPoint3D(drawposition, GREEN);
 	} */
 
-	//Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
-	//DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
+	Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
+	DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 
 	DrawMesh(chunk->mesh, material, MatrixTranslate(wpos.x, wpos.y, wpos.z));
 }

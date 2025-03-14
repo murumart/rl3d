@@ -1,5 +1,7 @@
 #include "lang.h"
 
+#include "state.h"
+
 #define STB_DS_IMPLEMENTATION
 #include "ext/stb_ds.h"
 
@@ -16,6 +18,8 @@
 #include <stdio.h>
 
 void asserts();
+void init_state(GameState *state);
+void init_visual(VisualData *visdat);
 
 i32 main(i32 argc, char **argv)
 {
@@ -24,73 +28,59 @@ i32 main(i32 argc, char **argv)
 
 	asserts();
 
-	Camera3D camera = { 0 };
-	camera.position = (Vector3){ 10.0f, 10.0f, 10.0f };
-	camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-	camera.fovy = 60.0f;
-	camera.projection = CAMERA_PERSPECTIVE;
+	GameState state = { 0 };
+	init_state(&state);
+	VisualData visdat = { 0 };
+	init_visual(&visdat);
 
 	SetTargetFPS(0);
 
-	Shader shaders[1];
-	shaders[0] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
-
-	MaterialMap matmaps[1];
-
-	Material materials[1];
-	materials[0] = LoadMaterialDefault();
-	materials[0].shader = shaders[0];
-	materials[0].maps = matmaps;
-
-	Texture textures[1];
-	textures[0] = LoadTexture("assets/textures/blocks/atlas.png");
-	matmaps[0] = (MaterialMap){ .texture = textures[0] };
-
-	World world;
-	world_init(&world);
-
-	bool wiremode = false;
+	/* MAIN LOOP */
 
 	while (!WindowShouldClose()) {
+		/* PROCESSING */
+
 		float delta = GetFrameTime();
 
 		if (IsKeyPressed(KEY_C)) {
 			if (IsCursorHidden()) EnableCursor();
 			else DisableCursor();
 		} else if (IsKeyPressed(KEY_X)) {
-			if (wiremode) {
-				wiremode = false;
+			if (visdat.flags & VISUALS_FLAG_WIREMODE) {
+				visdat.flags &= ~VISUALS_FLAG_WIREMODE;
 			} else {
-				wiremode = true;
+				visdat.flags |= VISUALS_FLAG_WIREMODE;
 			}
 		}
 
-		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
-			process_chunk(&world.chunkmap[i].value, delta);
+		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
+			process_chunk(&state.world.chunkmap[i].value, delta);
 		}
 
-		UpdateCamera(&camera, CAMERA_FREE);
+		UpdateCamera(&state.camera, CAMERA_FREE);
+
+		/* DRAWING */
 
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
-		BeginMode3D(camera);
+		BeginMode3D(state.camera);
 
 		Frustum frustum;
 		ExtractFrustum(&frustum);
 
-		if (wiremode) rlEnableWireMode();
+		if (visdat.flags & VISUALS_FLAG_WIREMODE) rlEnableWireMode();
 
 		const float frustrad = CHUNK_WIDTH;
-		for (u32 i = 0; i < hmlen(world.chunkmap); i++) {
-			ChunkmapKV kv = world.chunkmap[i];
+		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
+			ChunkmapKV kv = state.world.chunkmap[i];
 			BlockPosition chunkpos = blockpos_from_chunkpos(kv.value.position);
 			Vector3 chunkcentre = (Vector3){ chunkpos.x + (float)CHUNK_WIDTH / 2,
 							 chunkpos.y + (float)CHUNK_HEIGHT / 2,
 							 chunkpos.z + (float)CHUNK_WIDTH / 2 };
 
 			if (SphereInFrustumV(&frustum, chunkcentre, frustrad)) {
-				draw_chunk(&kv.value, materials[0]);
+				draw_chunk(&kv.value, visdat.materials[0]);
 			}
 		}
 
@@ -104,8 +94,8 @@ i32 main(i32 argc, char **argv)
 		EndMode3D();
 
 		char debugstrings[2][40] = { 0 };
-		snprintf(&debugstrings[0][0], 40, "cam pos: (%.2f %.2f %.2f)", camera.position.x, camera.position.y,
-			 camera.position.z);
+		snprintf(&debugstrings[0][0], 40, "cam pos: (%.2f %.2f %.2f)", state.camera.position.x,
+			 state.camera.position.y, state.camera.position.z);
 		snprintf(&debugstrings[1][0], 40, "\nfps: %d", GetFPS());
 		DrawText(debugstrings[0], 0, 0, 24, BLACK);
 		DrawText(debugstrings[1], 0, 0, 24, BLACK);
@@ -115,6 +105,30 @@ i32 main(i32 argc, char **argv)
 
 	CloseWindow();
 	return 0;
+}
+
+void init_state(GameState *state)
+{
+	state->camera = (Camera3D){ 0 };
+	state->camera.position = (Vector3){ 10.0f, 10.0f, 10.0f };
+	state->camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+	state->camera.fovy = 60.0f;
+	state->camera.projection = CAMERA_PERSPECTIVE;
+
+	world_init(&state->world);
+}
+
+void init_visual(VisualData *visdat)
+{
+	visdat->shaders[visdat->shaders_size++] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
+
+	visdat->materials[0] = LoadMaterialDefault();
+	visdat->materials[0].shader = visdat->shaders[0];
+	visdat->materials[0].maps = visdat->matmaps[0];
+	visdat->materials_size++;
+
+	visdat->textures[visdat->textures_size++] = LoadTexture("assets/textures/blocks/atlas.png");
+	visdat->matmaps[visdat->materials_size++][0] = (MaterialMap){ .texture = visdat->textures[0] };
 }
 
 void asserts()
