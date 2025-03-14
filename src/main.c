@@ -58,8 +58,9 @@ i32 main(i32 argc, char **argv)
 
 		world_process_loading(&state);
 
+		chunks_meshing_process(&state.world, delta);
 		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
-			process_chunk(&state.world.chunkmap[i].value, delta);
+			chunk_process(&state.world.chunkmap[i].value, delta);
 		}
 
 		/* DRAWING */
@@ -83,7 +84,7 @@ i32 main(i32 argc, char **argv)
 							 chunkpos.z + (float)CHUNK_WIDTH / 2 };
 
 			if (SphereInFrustumV(&frustum, chunkcentre, frustrad)) {
-				draw_chunk(&kv.value, visdat.materials[0]);
+				chunk_draw(&kv.value, visdat.materials[0]);
 			}
 		}
 
@@ -124,14 +125,14 @@ void init_state(GameState *state)
 void init_visual(VisualData *visdat)
 {
 	visdat->shaders[visdat->shaders_size++] = LoadShader("assets/shaders/blocks.vs", "assets/shaders/blocks.fs");
+	visdat->textures[visdat->textures_size++] = LoadTexture("assets/textures/blocks/atlas.png");
 
 	visdat->materials[0] = LoadMaterialDefault();
 	visdat->materials[0].shader = visdat->shaders[0];
-	visdat->materials[0].maps = visdat->matmaps[0];
 	visdat->materials_size++;
 
-	visdat->textures[visdat->textures_size++] = LoadTexture("assets/textures/blocks/atlas.png");
-	visdat->matmaps[visdat->materials_size++][0] = (MaterialMap){ .texture = visdat->textures[0] };
+	visdat->matmaps[visdat->matmaps_size++][MATERIAL_MAP_ALBEDO] = (MaterialMap){ .texture = visdat->textures[0] };
+	visdat->materials[0].maps = visdat->matmaps[0];
 }
 
 void asserts()

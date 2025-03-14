@@ -5,6 +5,9 @@
 
 #include "ext/raylib.h"
 
+#define VERTICAL_CHUNKS_LOAD 8	  // load vertically this many chunks
+#define DEFAULT_LOAD_DISTANCE 24u // load horizontally this many chunks from centre
+
 // do not include chunks.h, declare opaque types here
 typedef struct chunk_position ChunkPosition;
 typedef struct chunkmap_kv ChunkmapKV;
@@ -16,6 +19,7 @@ typedef struct world {
 	ChunkmapKV *chunkmap;
 
 	ChunkPosition *load_chunk_positions;
+	u32 load_chunk_positions_size;
 	Vector3 *loader_centre;
 	u16 view_distance;
 } World;

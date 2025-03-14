@@ -158,11 +158,20 @@ static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 	return chunk->block_data[block_index((u32)x, (u32)y, (u32)z)] == 0;
 }
 
-void mesh_chunk(Chunk *chunk, World *world)
+bool mesh_chunk(Chunk *chunk, World *world)
 {
 	clock_t start = clock();
 	Mesh mesh = { 0 };
 	//BlockPosition cwpos = blockpos_from_chunkpos(chunk->position);
+
+	ChunkPosition checks[6] = {
+		{ .x = -1, .y = 0, .z = 0 }, { .x = 0, .y = -1, .z = 0 }, { .x = -1, .y = 0, .z = -1 },
+		{ .x = 1, .y = 0, .z = 0 },  { .x = 0, .y = 1, .z = 0 },  { .x = 0, .y = 0, .z = 1 },
+	};
+	for (u32 i = 0; i < 6; i++) {
+		ChunkPosition n = checks[i];
+		if (world_get_chunk(world, VEC_ADD(ChunkPosition, n, chunk->position)) == NULL) return false;
+	}
 
 	// 2 triangles per face, how many faces per chunk?
 	u32 faces = 0;
@@ -220,7 +229,11 @@ void mesh_chunk(Chunk *chunk, World *world)
 
 	UploadMesh(&mesh, false);
 	chunk->mesh = mesh;
+	chunk->flags |= CHUNK_FLAG_MESH_CURRENT;
+
 	clock_t end = clock();
 	double timems = ((double)(end - start) / CLOCKS_PER_SEC) * 1000000;
 	printf("meshing %.2lfmics\n", timems);
+
+	return true;
 }

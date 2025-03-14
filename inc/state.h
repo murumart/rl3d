@@ -16,7 +16,7 @@ typedef struct visual_data {
 	Shader shaders[VISUALS_ARRSZ];
 	u32 shaders_size;
 
-	MaterialMap matmaps[VISUALS_ARRSZ][VISUALS_ARRSZ];
+	MaterialMap matmaps[VISUALS_ARRSZ][MATERIAL_MAP_BRDF + 1];
 	u32 matmaps_size;
 
 	Material materials[VISUALS_ARRSZ];

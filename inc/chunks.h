@@ -17,6 +17,8 @@
 #define CHUNK_WIDTH 16U
 #define CHUNK_HEIGHT 16U
 
+#define CHUNK_FLAG_MESH_CURRENT 0x1u
+
 static const u32 CHUNK_BLOCK_COUNT = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH;
 static const Vector3 CHUNK_DIM = { CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH };
 
@@ -37,6 +39,7 @@ typedef struct chunk {
 	Mesh mesh;
 	ChunkPosition position;
 	World *world;
+	u32 flags;
 } Chunk;
 
 // stores a chunk as a value and its position (of value ChunkPosition) as a key
@@ -56,7 +59,8 @@ bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b);
 
 void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos);
 
-void draw_chunk(Chunk *chunk, Material material);
-void process_chunk(Chunk *chunk, float delta);
+void chunks_meshing_process(World *world, float delta);
+void chunk_draw(Chunk *chunk, Material material);
+void chunk_process(Chunk *chunk, float delta);
 
 #endif // __CHUNKS_H__

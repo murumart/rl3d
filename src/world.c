@@ -10,8 +10,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define VERTICAL_CHUNKS_LOAD 6 // load vertically this many chunks
-
 static i32 compare_cpos_distances_to_world_centre(const void *a, const void *b)
 {
 	const ChunkPosition *ca = a;
@@ -28,10 +26,7 @@ void world_init(World *world, GameState *state)
 	world->load_chunk_positions = NULL;
 
 	world->loader_centre = &state->camera.position;
-	world_update_view_distance(world, 4);
-
-	ChunkPosition zero = { 0 };
-	world_fill_chunk_positions(world, &zero, 1);
+	world_update_view_distance(world, DEFAULT_LOAD_DISTANCE);
 }
 
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size)
@@ -109,11 +104,10 @@ void world_update_view_distance(World *world, u16 view_distance)
 	bool differ = world->view_distance != view_distance;
 	if (differ) {
 		world->view_distance = view_distance;
-
-		void *recresult = realloc(world->load_chunk_positions, sizeof(*world->load_chunk_positions)
-									       * diamond_arrsize(view_distance)
-									       * VERTICAL_CHUNKS_LOAD);
+		u32 size = diamond_arrsize(view_distance) * VERTICAL_CHUNKS_LOAD;
+		void *recresult = realloc(world->load_chunk_positions, sizeof(*world->load_chunk_positions) * size);
 		assert(recresult != NULL);
+		world->load_chunk_positions_size = size;
 		world->load_chunk_positions = recresult;
 	}
 	recalc_visible_chunks(world);
@@ -124,8 +118,7 @@ void world_process_loading(GameState *state)
 	World *world = &state->world;
 
 	// go over chunks that in vis range and load them
-	u32 sze = diamond_arrsize(world->view_distance) * VERTICAL_CHUNKS_LOAD;
-	for (u32 i = 0; i < sze; i++) {
+	for (u32 i = 0; i < world->load_chunk_positions_size; i++) {
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos != NULL) continue;

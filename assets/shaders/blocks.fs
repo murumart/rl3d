@@ -21,4 +21,5 @@ void main()
 	vec4 brightness = vec4(vertexBrightness, vertexBrightness, vertexBrightness, 1.0);
 	vec4 col = texture(texture0, fragTexCoord);
 	finalColor = col * brightness * fragColor;
+	//finalColor = brightness * fragColor;
 }

@@ -54,20 +54,21 @@ bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b)
 
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
 {
-	const float nscale = 0.02;
-	const i32 maxy = 16;
+	const float nscale = 0.002;
+	const i32 maxy = 0;
 	const float ydistr = 0.03;
 
 	Vector3 wpos = { bpos.x + (i32)x, bpos.y + (i32)y, bpos.z + (i32)z };
 	Vector3 pick = Vector3Scale(wpos, nscale);
-	float density = stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0);
-	pick = Vector3Scale(pick, 2);
+	float density = pow(stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0), 2) * 300;
+	pick = Vector3Scale(pick, 12);
 	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.75;
-	pick = Vector3Scale(pick, 2);
+	pick = Vector3Scale(pick, 3);
 	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.5;
 
 	float ydist = wpos.y - maxy;
 	//if (wpos.y > maxy) density -= ydist * ydistr;
+	if (ydist > 0) ydist = ydist * ydist;
 	density -= ydist * ydistr;
 
 	u32 i = block_index(x, y, z);
@@ -89,7 +90,19 @@ void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 	}
 }
 
-void draw_chunk(Chunk *chunk, Material material)
+void chunks_meshing_process(World *world, float delta)
+{
+	for (u32 i = 0; i < world->load_chunk_positions_size; i++) {
+		ChunkPosition pos2load = world->load_chunk_positions[i];
+		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
+		if (atpos == NULL) continue;
+		if ((atpos->value.flags & CHUNK_FLAG_MESH_CURRENT) != 0) continue;
+
+		if (mesh_chunk(&atpos->value, world)) break;
+	}
+}
+
+void chunk_draw(Chunk *chunk, Material material)
 {
 	BlockPosition cbpos = blockpos_from_chunkpos(chunk->position);
 	Vector3 wpos = { cbpos.x, cbpos.y, cbpos.z };
@@ -101,12 +114,12 @@ void draw_chunk(Chunk *chunk, Material material)
 		DrawPoint3D(drawposition, GREEN);
 	} */
 
-	Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
-	DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
+	//Vector3 chunkcentre = Vector3Multiply(Vector3One(), Vector3Scale(CHUNK_DIM, 0.5));
+	//DrawCubeWiresV(Vector3Add(wpos, chunkcentre), Vector3Multiply(Vector3One(), CHUNK_DIM), BLUE);
 
 	DrawMesh(chunk->mesh, material, MatrixTranslate(wpos.x, wpos.y, wpos.z));
 }
 
-void process_chunk(Chunk *chunk, float delta)
+void chunk_process(Chunk *chunk, float delta)
 {
 }

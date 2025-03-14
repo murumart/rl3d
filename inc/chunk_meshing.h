@@ -5,6 +5,6 @@
 
 #include "chunks.h"
 
-void mesh_chunk(Chunk *chunk, World *world);
+bool mesh_chunk(Chunk *chunk, World *world);
 
 #endif // __CHUNK_MESHING_H__
