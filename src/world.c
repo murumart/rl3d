@@ -4,6 +4,7 @@
 #include "state.h"
 
 #include "lang.h"
+#include "ext/frustum.h"
 #include "ext/stb_ds.h"
 
 #include <stdio.h>
@@ -122,6 +123,7 @@ void world_process_loading(GameState *state)
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos != NULL) continue;
+		
 		Chunk c = (Chunk){ 0 };
 		init_chunk(&c, world, pos2load);
 		hmput(world->chunkmap, pos2load, c);

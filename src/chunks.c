@@ -1,5 +1,6 @@
 #include "chunks.h"
 #include "chunk_meshing.h"
+#include "state.h"
 
 #include "ext/raylib.h"
 #include "ext/raymath.h"
@@ -52,6 +53,16 @@ bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b)
 	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
+bool is_chunk_in_frustum(const Chunk *chunk, Frustum *frustum)
+{ 
+	BlockPosition chunkpos = blockpos_from_chunkpos(chunk->position);
+	Vector3 chunkcentre = (Vector3){ 
+		chunkpos.x + (float)CHUNK_WIDTH / 2,
+		chunkpos.y + (float)CHUNK_HEIGHT / 2,
+		chunkpos.z + (float)CHUNK_WIDTH / 2 };
+	return SphereInFrustumV(frustum, chunkcentre, CHUNK_WIDTH);
+}
+
 static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 y, u32 z)
 {
 	const float nscale = 0.002;
@@ -62,7 +73,7 @@ static inline void determine_block(Chunk *chunk, BlockPosition bpos, u32 x, u32 
 	Vector3 pick = Vector3Scale(wpos, nscale);
 	float density = pow(stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0), 2) * 300;
 	pick = Vector3Scale(pick, 12);
-	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.75;
+	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 2.0;
 	pick = Vector3Scale(pick, 3);
 	density += stb_perlin_noise3(pick.x, pick.y, pick.z, 0, 0, 0) * 0.5;
 
@@ -90,13 +101,16 @@ void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 	}
 }
 
-void chunks_meshing_process(World *world, float delta)
+void chunks_meshing_process(GameState *state, float delta)
 {
+	World *world = &state->world;
 	for (u32 i = 0; i < world->load_chunk_positions_size; i++) {
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos == NULL) continue;
 		if ((atpos->value.flags & CHUNK_FLAG_MESH_CURRENT) != 0) continue;
+		Frustum *frustum = &state->camera_frustum;
+		if (!is_chunk_in_frustum(&atpos->value, frustum)) continue;
 
 		if (mesh_chunk(&atpos->value, world)) break;
 	}

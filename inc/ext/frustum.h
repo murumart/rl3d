@@ -255,4 +255,5 @@ bool AABBoxInFrustum(Frustum *frustum, Vector3 min, Vector3 max)
 	// the box extends outside the frustum but crosses it
 	return true;
 }
+#undef FRUSTUM_IMPLEMENTATION
 #endif // FRUSTUM_IMPLEMENTATION

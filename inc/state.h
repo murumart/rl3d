@@ -7,6 +7,7 @@
 
 #include "ext/raylib.h"
 #include "ext/raymath.h"
+#include "ext/frustum.h"
 
 #define VISUALS_ARRSZ 16
 
@@ -30,6 +31,7 @@ typedef struct visual_data {
 
 typedef struct state {
 	Camera3D camera;
+	Frustum camera_frustum;
 	Vector3 last_loader_position;
 
 	World world;

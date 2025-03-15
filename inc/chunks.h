@@ -6,6 +6,7 @@
 #include "world.h"
 
 #include "ext/raylib.h"
+#include "ext/frustum.h"
 
 // loop through blocks in z y x order. pass in dimensions of chunk.
 // provides x, y, z (u32) values for following code block.
@@ -56,10 +57,11 @@ ChunkPosition chunkpos_from_blockpos(BlockPosition bpos);
 ChunkPosition chunkpos_from_worldpos(Vector3 wpos);
 BlockPosition chunk_world_bpos_to_local(BlockPosition global);
 bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b);
+bool is_chunk_in_frustum(const Chunk *chunk, Frustum *frustum);
 
 void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos);
 
-void chunks_meshing_process(World *world, float delta);
+void chunks_meshing_process(GameState *state, float delta);
 void chunk_draw(Chunk *chunk, Material material);
 void chunk_process(Chunk *chunk, float delta);
 

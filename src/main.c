@@ -53,12 +53,18 @@ i32 main(i32 argc, char **argv)
 			}
 		}
 
+		BeginMode3D(state.camera);
+		Frustum frustum;
+		ExtractFrustum(&frustum);
+		EndMode3D();
+		state.camera_frustum = frustum;
+
 		state.last_loader_position = *state.world.loader_centre;
 		UpdateCamera(&state.camera, CAMERA_FREE);
 
 		world_process_loading(&state);
 
-		chunks_meshing_process(&state.world, delta);
+		chunks_meshing_process(&state, delta);
 		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
 			chunk_process(&state.world.chunkmap[i].value, delta);
 		}
@@ -70,20 +76,12 @@ i32 main(i32 argc, char **argv)
 
 		BeginMode3D(state.camera);
 
-		Frustum frustum;
-		ExtractFrustum(&frustum);
-
 		if (visdat.flags & VISUALS_FLAG_WIREMODE) rlEnableWireMode();
 
-		const float frustrad = CHUNK_WIDTH;
 		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
 			ChunkmapKV kv = state.world.chunkmap[i];
-			BlockPosition chunkpos = blockpos_from_chunkpos(kv.value.position);
-			Vector3 chunkcentre = (Vector3){ chunkpos.x + (float)CHUNK_WIDTH / 2,
-							 chunkpos.y + (float)CHUNK_HEIGHT / 2,
-							 chunkpos.z + (float)CHUNK_WIDTH / 2 };
-
-			if (SphereInFrustumV(&frustum, chunkcentre, frustrad)) {
+			
+			if (is_chunk_in_frustum(&kv.value, &frustum)) {
 				chunk_draw(&kv.value, visdat.materials[0]);
 			}
 		}
