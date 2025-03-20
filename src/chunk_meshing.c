@@ -34,7 +34,8 @@ typedef struct six_indices {
 } SixIndices;
 
 // does not check memory bounds!!
-static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
+static inline void
+mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, Vector2 texcoord)
 {
 	info->vertex_coords[info->vertex_coord_offset + 0] = pos.x;
 	info->vertex_coords[info->vertex_coord_offset + 1] = pos.y;
@@ -51,7 +52,8 @@ static inline void mesh_vertex(MeshGenInfo *info, Vector3 pos, Vector3 normal, V
 	info->uv_offset += 2;
 }
 
-static inline void index_vertices(MeshGenInfo *info, u16 a, u16 b, u16 c, u16 d, u16 e, u16 f)
+static inline void
+index_vertices(MeshGenInfo *info, u16 a, u16 b, u16 c, u16 d, u16 e, u16 f)
 {
 	// subtract 4 from the offset because you add 4 vertices each time and to index them
 	// you gotta go backward
@@ -67,8 +69,10 @@ static inline void index_vertices(MeshGenInfo *info, u16 a, u16 b, u16 c, u16 d,
 
 static inline void assert_mesh_gen_space_has_room(MeshGenInfo *info)
 {
-	assert(info->vertex_coord_offset + 3 * VERTICES_PER_FACE <= info->vertex_coord_max);
-	assert(info->normal_side_offset + 3 * VERTICES_PER_FACE <= info->normal_side_max);
+	assert(info->vertex_coord_offset + 3 * VERTICES_PER_FACE
+	       <= info->vertex_coord_max);
+	assert(info->normal_side_offset + 3 * VERTICES_PER_FACE
+	       <= info->normal_side_max);
 	assert(info->uv_offset + 2 * VERTICES_PER_FACE <= info->uv_max);
 	assert(info->index_offset + INDICES_PER_FACE <= info->index_max);
 }
@@ -77,10 +81,30 @@ static void mesh_north_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 0, -1 }, (Vector2){ 1, 0 });
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 0 + z },
+		(Vector3){ 0, 0, -1 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 0 + z },
+		(Vector3){ 0, 0, -1 },
+		(Vector2){ 0, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 0 + z },
+		(Vector3){ 0, 0, -1 },
+		(Vector2){ 0, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 0 + z },
+		(Vector3){ 0, 0, -1 },
+		(Vector2){ 1, 0 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
@@ -88,10 +112,30 @@ static void mesh_south_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 0, 1 }, (Vector2){ 1, 0 });
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 1 + z },
+		(Vector3){ 0, 0, 1 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 1 + z },
+		(Vector3){ 0, 0, 1 },
+		(Vector2){ 0, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 1 + z },
+		(Vector3){ 0, 0, 1 },
+		(Vector2){ 0, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 1 + z },
+		(Vector3){ 0, 0, 1 },
+		(Vector2){ 1, 0 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
@@ -99,10 +143,30 @@ static void mesh_east_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 1, 0, 0 }, (Vector2){ 0, 0 });
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 0 + z },
+		(Vector3){ 1, 0, 0 },
+		(Vector2){ 0, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 1 + z },
+		(Vector3){ 1, 0, 0 },
+		(Vector2){ 1, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 1 + z },
+		(Vector3){ 1, 0, 0 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 0 + z },
+		(Vector3){ 1, 0, 0 },
+		(Vector2){ 0, 0 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
@@ -110,10 +174,30 @@ static void mesh_west_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 0, 1 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ -1, 0, 0 }, (Vector2){ 1, 0 });
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 1 + z },
+		(Vector3){ -1, 0, 0 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 0 + z },
+		(Vector3){ -1, 0, 0 },
+		(Vector2){ 0, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 0 + z },
+		(Vector3){ -1, 0, 0 },
+		(Vector2){ 0, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 1 + z },
+		(Vector3){ -1, 0, 0 },
+		(Vector2){ 1, 0 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
@@ -121,10 +205,30 @@ static void mesh_top_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 1 + y, 0 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 1 + y, 1 + z }, (Vector3){ 0, 1, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 0 + z },
+		(Vector3){ 0, 1, 0 },
+		(Vector2){ 0, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 1 + z },
+		(Vector3){ 0, 1, 0 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 1 + y, 0 + z },
+		(Vector3){ 0, 1, 0 },
+		(Vector2){ 1, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 1 + y, 1 + z },
+		(Vector3){ 0, 1, 0 },
+		(Vector2){ 0, 1 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
@@ -132,16 +236,37 @@ static void mesh_bottom_face(MeshGenInfo *info, u32 x, u32 y, u32 z)
 {
 	assert_mesh_gen_space_has_room(info);
 
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 1 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 0 });
-	mesh_vertex(info, (Vector3){ 0 + x, 0 + y, 1 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 1, 0 });
-	mesh_vertex(info, (Vector3){ 1 + x, 0 + y, 0 + z }, (Vector3){ 0, -1, 0 }, (Vector2){ 0, 1 });
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 0 + z },
+		(Vector3){ 0, -1, 0 },
+		(Vector2){ 1, 1 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 1 + z },
+		(Vector3){ 0, -1, 0 },
+		(Vector2){ 0, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 0 + x, 0 + y, 1 + z },
+		(Vector3){ 0, -1, 0 },
+		(Vector2){ 1, 0 }
+	);
+	mesh_vertex(
+		info,
+		(Vector3){ 1 + x, 0 + y, 0 + z },
+		(Vector3){ 0, -1, 0 },
+		(Vector2){ 0, 1 }
+	);
 	index_vertices(info, 0, 1, 2, 3, 1, 0);
 }
 
 static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 {
-	if (x < 0 || x >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_WIDTH) {
+	if (x < 0 || x >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT || z < 0
+	    || z >= CHUNK_WIDTH) {
 		// xyz are relative to the passed in chunk
 		BlockPosition bpos = { x, y, z };
 		ChunkPosition outside_location = chunkpos_from_blockpos(bpos);
@@ -158,20 +283,24 @@ static bool check_block_transp(Chunk *chunk, World *world, i32 x, i32 y, i32 z)
 	return chunk->block_data[block_index((u32)x, (u32)y, (u32)z)] == 0;
 }
 
-bool mesh_chunk(Chunk *chunk, World *world)
+bool chunk_mesh_mesh(Chunk *chunk, World *world)
 {
 	clock_t start = clock();
 	Mesh mesh = { 0 };
 	//BlockPosition cwpos = blockpos_from_chunkpos(chunk->position);
 
 	ChunkPosition checks[6] = {
-		{ .x = -1, .y = 0, .z = 0 }, { .x = 0, .y = -1, .z = 0 }, { .x = -1, .y = 0, .z = -1 },
-		{ .x = 1, .y = 0, .z = 0 },  { .x = 0, .y = 1, .z = 0 },  { .x = 0, .y = 0, .z = 1 },
+		{ .x = -1, .y = 0, .z = 0 },  { .x = 0, .y = -1, .z = 0 },
+		{ .x = -1, .y = 0, .z = -1 }, { .x = 1, .y = 0, .z = 0 },
+		{ .x = 0, .y = 1, .z = 0 },   { .x = 0, .y = 0, .z = 1 },
 	};
-	FIU(6)
-	{
+	FIU(6) {
 		ChunkPosition n = checks[i];
-		if (world_get_chunk(world, VEC_ADD(ChunkPosition, n, chunk->position)) == NULL) return false;
+		if (world_get_chunk(
+			    world, VEC_ADD(ChunkPosition, n, chunk->position)
+		    )
+		    == NULL)
+			return false;
 	}
 
 	// 2 triangles per face, how many faces per chunk?
@@ -195,9 +324,15 @@ bool mesh_chunk(Chunk *chunk, World *world)
 	mesh.vertexCount = VERTICES_PER_FACE * faces;
 
 	MeshGenInfo info = {
-		.vertex_coord_max = mesh.vertexCount * 3, // each vertex is has a 3 float vector position
-		.normal_side_max = mesh.vertexCount * 3,  // normal vector (3 floats) for each vertex
-		.uv_max = mesh.vertexCount * 2,		  // 2 floats for texture coordinates for each vertex
+		.vertex_coord_max
+		= mesh.vertexCount
+		  * 3, // each vertex is has a 3 float vector position
+		.normal_side_max
+		= mesh.vertexCount
+		  * 3, // normal vector (3 floats) for each vertex
+		.uv_max
+		= mesh.vertexCount
+		  * 2, // 2 floats for texture coordinates for each vertex
 		.index_max = INDICES_PER_FACE * faces,
 	};
 
@@ -215,12 +350,18 @@ bool mesh_chunk(Chunk *chunk, World *world)
 	{
 		if (chunk->block_data[block_index(x, y, z)] == 0) continue;
 
-		if (check_block_transp(chunk, world, x, y, z - 1)) mesh_north_face(&info, x, y, z);
-		if (check_block_transp(chunk, world, x, y, z + 1)) mesh_south_face(&info, x, y, z);
-		if (check_block_transp(chunk, world, x + 1, y, z)) mesh_east_face(&info, x, y, z);
-		if (check_block_transp(chunk, world, x - 1, y, z)) mesh_west_face(&info, x, y, z);
-		if (check_block_transp(chunk, world, x, y + 1, z)) mesh_top_face(&info, x, y, z);
-		if (check_block_transp(chunk, world, x, y - 1, z)) mesh_bottom_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y, z - 1))
+			mesh_north_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y, z + 1))
+			mesh_south_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x + 1, y, z))
+			mesh_east_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x - 1, y, z))
+			mesh_west_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y + 1, z))
+			mesh_top_face(&info, x, y, z);
+		if (check_block_transp(chunk, world, x, y - 1, z))
+			mesh_bottom_face(&info, x, y, z);
 	}
 
 	mesh.vertices = info.vertex_coords;
@@ -236,5 +377,24 @@ bool mesh_chunk(Chunk *chunk, World *world)
 	double timems = ((double)(end - start) / CLOCKS_PER_SEC) * 1000000;
 	printf("meshing %.2lfmics\n", timems);
 
+	return true;
+}
+
+bool chunk_mesh_destroy(Chunk *chunk)
+{
+	if (!chunk->mesh.vaoId) return false;
+	UnloadMesh(chunk->mesh);
+	free(chunk->mesh.vertices);
+	chunk->mesh.vertices = NULL;
+	chunk->mesh.vertexCount = 0;
+
+	free(chunk->mesh.normals);
+	chunk->mesh.normals = NULL;
+
+	free(chunk->mesh.texcoords);
+	chunk->mesh.texcoords = NULL;
+
+	free(chunk->mesh.indices);
+	chunk->mesh.indices = NULL;
 	return true;
 }

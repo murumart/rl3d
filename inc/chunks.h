@@ -15,8 +15,8 @@
 		for (u32 y = 0; y < Y; y++) \
 			for (u32 x = 0; x < X; x++)
 
-#define CHUNK_WIDTH 16U
-#define CHUNK_HEIGHT 16U
+#define CHUNK_WIDTH 32U
+#define CHUNK_HEIGHT 32U
 
 #define CHUNK_FLAG_MESH_CURRENT 0x1u
 

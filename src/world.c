@@ -1,5 +1,6 @@
 #include "world.h"
 #include "chunks.h"
+#include "chunk_meshing.h"
 
 #include "state.h"
 
@@ -32,8 +33,7 @@ void world_init(World *world, GameState *state)
 
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size)
 {
-	FIU(size)
-	{
+	FIU(size) {
 		Chunk chunk;
 		init_chunk(&chunk, world, positions[i]);
 		hmput(world->chunkmap, positions[i], chunk);
@@ -61,16 +61,19 @@ static inline u32 diamond_arrsize(u16 view_distance)
 }
 
 // need the array size to be set properly, otherwise we're in big trouble
-static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, ChunkPosition *loadus, u32 index)
+static inline u32 calc_visible_chunk_layer(
+	u32 viewdist, ChunkPosition centre, ChunkPosition *loadus, u32 index
+)
 {
 	u32 ix = index;
 	for (i32 zi = 0; zi < viewdist + 1; zi++) {
 		i32 x = viewdist - zi - 1;
 		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
 			x += 1;
-			loadus[ix] = (ChunkPosition){ .x = centre.x + x - viewdist,
-						      .y = centre.y,
-						      .z = centre.z + zi - viewdist };
+			loadus[ix] = (ChunkPosition
+			){ .x = centre.x + x - viewdist,
+			   .y = centre.y,
+			   .z = centre.z + zi - viewdist };
 			ix++;
 		}
 	}
@@ -78,9 +81,10 @@ static inline u32 calc_visible_chunk_layer(u32 viewdist, ChunkPosition centre, C
 		i32 x = viewdist - zi - 1;
 		for (i32 xi = 0; xi < zi * 2 + 1; xi++) {
 			x += 1;
-			loadus[ix] = (ChunkPosition){ .x = centre.x + x - viewdist,
-						      .y = centre.y,
-						      .z = centre.z + viewdist * 2 - zi - viewdist };
+			loadus[ix] = (ChunkPosition
+			){ .x = centre.x + x - viewdist,
+			   .y = centre.y,
+			   .z = centre.z + viewdist * 2 - zi - viewdist };
 			ix++;
 		}
 	}
@@ -94,10 +98,14 @@ static void recalc_visible_chunks(World *world)
 	u32 index = 0;
 	if (world->loader_centre == NULL) return;
 	ChunkPosition centre = chunkpos_from_worldpos(*world->loader_centre);
-	for (i32 y = centre.y - VERTICAL_CHUNKS_LOAD / 2; y < centre.y + VERTICAL_CHUNKS_LOAD / 2; y++) {
+	for (i32 y = centre.y - VERTICAL_CHUNKS_LOAD / 2;
+	     y < centre.y + VERTICAL_CHUNKS_LOAD / 2;
+	     y++) {
 		ChunkPosition tc = centre;
 		tc.y = y;
-		index = calc_visible_chunk_layer(vd, tc, world->load_chunk_positions, index);
+		index = calc_visible_chunk_layer(
+			vd, tc, world->load_chunk_positions, index
+		);
 	}
 }
 
@@ -106,8 +114,12 @@ void world_update_view_distance(World *world, u16 view_distance)
 	bool differ = world->view_distance != view_distance;
 	if (differ) {
 		world->view_distance = view_distance;
-		u32 size = diamond_arrsize(view_distance) * VERTICAL_CHUNKS_LOAD;
-		void *recresult = realloc(world->load_chunk_positions, sizeof(*world->load_chunk_positions) * size);
+		u32 size
+			= diamond_arrsize(view_distance) * VERTICAL_CHUNKS_LOAD;
+		void *recresult = realloc(
+			world->load_chunk_positions,
+			sizeof(*world->load_chunk_positions) * size
+		);
 		assert(recresult != NULL);
 		world->load_chunk_positions_size = size;
 		world->load_chunk_positions = recresult;
@@ -119,9 +131,26 @@ void world_process_loading(GameState *state)
 {
 	World *world = &state->world;
 
+	// unload a chunk not in vis range
+	FRU(i, hmlen(world->chunkmap)) {
+		bool found = false;
+		ChunkmapKV *kv = &world->chunkmap[i];
+		// ugly O(n^2)... be better!
+		FRU(j, world->load_chunk_positions_size) {
+			if (VEC_EQ(world->load_chunk_positions[j], kv->key)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) continue;
+
+		chunk_mesh_destroy(&kv->value);
+		(void)hmdel(world->chunkmap, kv->key);
+		break;
+	}
+
 	// go over chunks that in vis range and load them
-	FIU(world->load_chunk_positions_size)
-	{
+	FIU(world->load_chunk_positions_size) {
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos != NULL) continue;
@@ -136,6 +165,4 @@ void world_process_loading(GameState *state)
 	if (are_chunkposes_equal(old, current)) return;
 
 	recalc_visible_chunks(world);
-
-	// unload chunks not in vis range
 }

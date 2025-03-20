@@ -5,8 +5,10 @@
 
 #include "ext/raylib.h"
 
-#define VERTICAL_CHUNKS_LOAD 8	  // load vertically this many chunks
-#define DEFAULT_LOAD_DISTANCE 24u // load horizontally this many chunks from centre
+// load vertically this many chunks
+#define VERTICAL_CHUNKS_LOAD 8
+// load horizontally this many chunks from centre
+#define DEFAULT_LOAD_DISTANCE 8u
 
 // do not include chunks.h, declare opaque types here
 typedef struct chunk_position ChunkPosition;
@@ -25,7 +27,9 @@ typedef struct world {
 } World;
 
 void world_init(World *world, GameState *state);
-void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size);
+void world_fill_chunk_positions(
+	World *world, ChunkPosition *positions, u32 size
+);
 
 Chunk *world_get_chunk(World *world, ChunkPosition cpos);
 
