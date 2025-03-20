@@ -54,12 +54,10 @@ bool are_chunkposes_equal(const ChunkPosition a, const ChunkPosition b)
 }
 
 bool is_chunk_in_frustum(const Chunk *chunk, Frustum *frustum)
-{ 
+{
 	BlockPosition chunkpos = blockpos_from_chunkpos(chunk->position);
-	Vector3 chunkcentre = (Vector3){ 
-		chunkpos.x + (float)CHUNK_WIDTH / 2,
-		chunkpos.y + (float)CHUNK_HEIGHT / 2,
-		chunkpos.z + (float)CHUNK_WIDTH / 2 };
+	Vector3 chunkcentre = (Vector3){ chunkpos.x + (float)CHUNK_WIDTH / 2, chunkpos.y + (float)CHUNK_HEIGHT / 2,
+					 chunkpos.z + (float)CHUNK_WIDTH / 2 };
 	return SphereInFrustumV(frustum, chunkcentre, CHUNK_WIDTH);
 }
 
@@ -104,7 +102,8 @@ void init_chunk(Chunk *chunk, World *world, ChunkPosition cpos)
 void chunks_meshing_process(GameState *state, float delta)
 {
 	World *world = &state->world;
-	for (u32 i = 0; i < world->load_chunk_positions_size; i++) {
+	FIU(world->load_chunk_positions_size)
+	{
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos == NULL) continue;

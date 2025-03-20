@@ -65,7 +65,8 @@ i32 main(i32 argc, char **argv)
 		world_process_loading(&state);
 
 		chunks_meshing_process(&state, delta);
-		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
+		FIU(hmlen(state.world.chunkmap))
+		{
 			chunk_process(&state.world.chunkmap[i].value, delta);
 		}
 
@@ -78,9 +79,10 @@ i32 main(i32 argc, char **argv)
 
 		if (visdat.flags & VISUALS_FLAG_WIREMODE) rlEnableWireMode();
 
-		for (u32 i = 0; i < hmlen(state.world.chunkmap); i++) {
+		FIU(hmlen(state.world.chunkmap))
+		{
 			ChunkmapKV kv = state.world.chunkmap[i];
-			
+
 			if (is_chunk_in_frustum(&kv.value, &frustum)) {
 				chunk_draw(&kv.value, visdat.materials[0]);
 			}

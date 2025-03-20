@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 #define VEC_ADD(type, A, B) ((type){ .x = A.x + B.x, .y = A.y + B.y, .z = A.z + B.z })
+#define FRANGELOOP(type, iname, init, until) for (type iname = (init); iname < (until); (iname++))
+#define FRU(iname, until) FRANGELOOP(u32, iname, 0, until)
+#define FIU(until) FRU(i, until)
 
 typedef uint8_t u8;
 typedef uint16_t u16;

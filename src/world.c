@@ -32,7 +32,8 @@ void world_init(World *world, GameState *state)
 
 void world_fill_chunk_positions(World *world, ChunkPosition *positions, u32 size)
 {
-	for (u32 i = 0; i < size; i++) {
+	FIU(size)
+	{
 		Chunk chunk;
 		init_chunk(&chunk, world, positions[i]);
 		hmput(world->chunkmap, positions[i], chunk);
@@ -119,11 +120,12 @@ void world_process_loading(GameState *state)
 	World *world = &state->world;
 
 	// go over chunks that in vis range and load them
-	for (u32 i = 0; i < world->load_chunk_positions_size; i++) {
+	FIU(world->load_chunk_positions_size)
+	{
 		ChunkPosition pos2load = world->load_chunk_positions[i];
 		ChunkmapKV *atpos = hmgetp_null(world->chunkmap, pos2load);
 		if (atpos != NULL) continue;
-		
+
 		Chunk c = (Chunk){ 0 };
 		init_chunk(&c, world, pos2load);
 		hmput(world->chunkmap, pos2load, c);
@@ -134,4 +136,6 @@ void world_process_loading(GameState *state)
 	if (are_chunkposes_equal(old, current)) return;
 
 	recalc_visible_chunks(world);
+
+	// unload chunks not in vis range
 }

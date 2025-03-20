@@ -168,7 +168,8 @@ bool mesh_chunk(Chunk *chunk, World *world)
 		{ .x = -1, .y = 0, .z = 0 }, { .x = 0, .y = -1, .z = 0 }, { .x = -1, .y = 0, .z = -1 },
 		{ .x = 1, .y = 0, .z = 0 },  { .x = 0, .y = 1, .z = 0 },  { .x = 0, .y = 0, .z = 1 },
 	};
-	for (u32 i = 0; i < 6; i++) {
+	FIU(6)
+	{
 		ChunkPosition n = checks[i];
 		if (world_get_chunk(world, VEC_ADD(ChunkPosition, n, chunk->position)) == NULL) return false;
 	}
